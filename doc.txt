@@ -1,0 +1,22 @@
+UNIVERSIDADE FEDERAL DO RIO GRANDE
+FARSA - MARXBOT CLEANING EXPERIMENT
+RELATÓRIO SEMANAL
+INTRODUÇÃO
+
+    Última ação proposta para o projeto era criar um modelo manual para comparação entre os modelos com parâmetros arbitrados e com parâmetros evoluídos. No modelo de parâmetros arbitrados foram simulados levando em conta várias combinações de parâmetros,  os tipos de funções usadas para subida e diminuição do clock, alterando os tempos usado para completar a subida e descida e o tempo máximo para conclusão do experimento. Após isso todos os dados foram salvo e plotados em forma de boxplot para utilização e comparação futuras.
+Na introdução ao modelo manual foi a primeiro ponto cogitado uma implementação de sistema dinâmico porém mais a frente ao definir a forma de limpamento que seria em “tiras” limpando em linhas fazendo assim que poucas curvas sejam necessária em momentos específicos. 
+Para tal modelo foi levado em conta um sistema que visa a limpeza total portanto não será considerado a porcentagem de limpeza e sim o tempo necessário, dito isso foi formulado algumas etapas de projeto.
+    As etapas foram divididas em cincos partes onde a primeira é a criação da movimentação, a segunda manipulação dos sensores, a terceira uma bateria de teste, quarta mudança do local inicial, e finaliza com a lógica de corredor e seguimento de paredes.
+
+DESENVOLVIDO
+
+Na primeira parte, foi desenvolver a lógica de movimentação, no controle dos motores  os comandos necessários já estavam declarados em códigos additional_motors sendo fornecido a velocidade que cada motor terá. A lógica de movimentação foi dividida em limpeza de sala e troca de salas, dentro das salas foi feita de forma simples considerando algumas informações e indicando para qual lado é a curva e se já terminou a limpeza porém por causa de um problema que será relatado depois não pode ser testado.
+    Segunda parte, seria manipulações de sensores e a criação de uma lógica para detecção de parades e assim contribuir na lógica de movimentação, porém nesta parte o desenvolvimento não avançou porque não foi achado as referências necessária em nenhuma documentação e nem uma tentativa de “engenharia reversa” não foram encontrados os comandos necessários, para detectar as paredes e assim fazer a curva em 180 graus assim continuando a limpeza por “tiras”, e devido a isso todo o progresso travou aqui e nada a frente não saiu do papel.
+A terceira parte, seria teste da lógica de movimentação e consertar erros encontrados e aperfeiçoar a lógica, avaliando o funcionamento dos sensores e da lógica da curva(travando um motor ou rotacionando no eixo).
+Depois seria travar a localização inicial do robô da sala central para uma sala lateral e no canto facilitando assim a limpeza.
+Finalizando com a criação de uma lógica para limpeza de corredores e com a verificação de limpeza das salas para não haver sobreposição de limpeza e criar uma movimentação que “segue paredes caso a sala já esteja limpa”.
+
+
+Organization of the Documentation
+
+Running the Exemplificative Experiments
