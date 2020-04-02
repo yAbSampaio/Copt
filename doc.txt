@@ -22,8 +22,32 @@ Running the Exemplificative Experiments
         kinematicRobot = true
         ledColors = +0000FF +00FF00 +00FF00 +00FF00 +00FF00 +00FF00 +0000FF +0000FF +0000FF +0000FF +0000FF +0000FF
         color = +FFFFFF
+    
+Creating Custom Sensors or Motors:
     -da pra adicionar mais sensores e motores para o robo, precisea selecionar o componente "Experiment" localizado 
     na terceira janela ao lado esquerdo da interface do total99,  e então usar  "New Subgroup box".
-    
-Creating Custom Sensors or Motors
+    -Observe que a FARSA não impede que você especifique uma configuração impossível, por exemplo,
+    associe um motor de braço iCub a um robô MarxBot com rodas. se fizer algo do tipo o programa vai dar erro ou ter comportamentos inconsistentes.
 
+Controlando as rodas:
+    -MarxBotWheelVelocityMotor: Envolve dois neurônios-motores que controlam a velocidade desejada da roda esquerda e direita.
+    -MarxBotWheelVelOrientMotor: Envolve dois neurônios-motores que controlam a velocidade e a orientação desejadas do robô.
+    -MarxBotAttachmentDeviceMotor: Controla a pinça através da qual o robô pode se conectar a outros robôs.
+
+Sensores:
+Os dados de amostra são armazenados nos arquivos "wallSamples.sam", "roundSamples.sam" e "smallSamples.sam" localizados no diretório da experiência.
+    -MarxBotProximityIRSensors:
+    -MarxBotSampledProximityIRSensor:
+    -MarXbotLinearCameraSensor:          Uma câmera que pode ser utilizada para verificar a cor de pequenos objetos coloridos.
+    -O MarXbotTractionSensor:            pode ser usado para detectar a tração que a torre do robô exorta no chassi.
+    -O MarXbotAttachmentDeviceSensor:    pode ser usado para detectar o estado atual do dispositivo de conexão do robô(a pinça).
+    -O MarXbotWheelSpeedsSensor:         É um propriosensor que pode ser usado para detectar a velocidade atual das rodas do robô.
+    Usados paradetectar o estado dos sensores:
+        --MarXbotGroundAroundIRSensor.
+        --MarXbotGroundBottomIRSensor.
+    Sensores, motores, e seus parametros são salvos em pastas separadas do arquivo "configuration.ini", segue exemplo:
+        [Component/GA/Experiment/Sensor:0]
+        type = MarXbotSampledProximityIRSensor
+        name = Proximity
+        marxbot = robot
+        activeSensors = 000000000000101011110101 #apenas 12 sensores estão ativos
