@@ -1,0 +1,25 @@
+UNIVERSIDADE FEDERAL DO RIO GRANDE
+FARSA - MARXBOT CLEANING EXPERIMENT
+RELATÓRIO SEMANAL
+
+	-Alguns sensores executam um pré-processamento dos dados que são extraidos de um sensor físico(Abstraem a imterpretação de dados não digitais).
+	-também pode-se implementar uma nova versão de um sensor existente que pré-processe as informações sensoriais de uma maneira diferente em 
+	 relação aos sensores existentes.
+	-Na pratica (em código) cada sensor atualiza o estado de um certo número de unidades sensoriais ou neurônios sensoriais.
+	-Na pratica (em código) cada motor atualiza o estado de um ou mais atuadores do robô com base no estado de uma ou mais unidades 
+	 ou neurônios motores do controlador do robô.
+	-A interface entre os sensores e motores e os controladores dos robôs é tratada pelo NeuronsIterator class.
+	-As unidades sensoriais e motoras são divididas em blocos com o mesmo nome do sensor usado para atualizá-los ou do motor que os 
+	 utiliza para definir o estado dos atuadores do robô correspondentes
+	-A classe NeuronsIterator inclui as seguintes funções:
+		setCurrentBlock() - seleciona o bloco a ser lido ou gravado;
+		setInput() - define o valor do elemento atual;
+		getOutput() - lê o valor do elemento atual;
+		setGraphicProperties() - define as propriedades gráficas do elemento que são usadas pela interface gráfica;
+		nextNeuron() - define a próxima unidade do bloco atual.
+	
+	-Sensores e motores são componentes que podem ser implementados dentro de um plug-in experimental compilado de forma independente da FARSA. 
+	 Como todos os componentes implementados em um plug-in, eles devem usar as macros FARSA_PLUGIN_ * e FARSA_REGISTER_CLASS.
+	-Sensores que podem ser usados por diferentes tipos de robos são declarados como subclasses da classe geral de sensores (Sensor class), 
+	 sensores especificos são declarados em subclasses especificas(nomeadas: KheperaSensor, EpuckSensor, MarXbotSensor e iCubSensor).
+	 	-O mesmo vale para motores (nomeados: KheperaMotor, EpuckMotor, MarXbotMotor e iCubMotor).
