@@ -50,4 +50,4 @@ Os dados de amostra são armazenados nos arquivos "wallSamples.sam", "roundSampl
         type = MarXbotSampledProximityIRSensor
         name = Proximity
         marxbot = robot
-        activeSensors = 000000000000101011110101 #apenas 12 sensores estão ativos
+        activeSensors = 000000000000101011110101 #apenas 8 sensores estão ativos
