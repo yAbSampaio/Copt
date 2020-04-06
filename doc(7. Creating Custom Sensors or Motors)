@@ -23,3 +23,48 @@ RELATÓRIO SEMANAL
 	-Sensores que podem ser usados por diferentes tipos de robos são declarados como subclasses da classe geral de sensores (Sensor class), 
 	 sensores especificos são declarados em subclasses especificas(nomeadas: KheperaSensor, EpuckSensor, MarXbotSensor e iCubSensor).
 	 	-O mesmo vale para motores (nomeados: KheperaMotor, EpuckMotor, MarXbotMotor e iCubMotor).
+	-Podemos declarar um Sensor simples da classe geral de sensores (pode ser usado em qualquer tipo de robo) da seguinte maneira:
+		class FARSA_PLUGIN_API MinimalSensor : public Sensor
+		{
+			FARSA_REGISTER_CLASS(Sensor)
+		public:
+			MinimalSensor(ConfigurationParameters& params, QString prefix);
+			~MinimalSensor();
+			virtual void save(ConfigurationParameters& params, QString prefix);
+			static void describe(QString type);
+			virtual void update();
+			virtual int size();
+		protected:
+			virtual void resourceChanged(QString resourceName, ResourceChangeType changeType);
+			const QString m_neuronsIteratorResource;
+			NeuronsIterator* m_neuronsIterator;
+		};
+
+	-A classe Sensor (assim como Motor) herda de ParameterSettableInConstructor. Isso significa que o construtor precisa usar dois parâmetros 
+	 e que a função "describe()" deve estar presente. O único parâmetro de configuração que essa classe espera é o nome do recurso do 
+	 neuronsIterator (na maioria dos casos, esse parâmetro não precisa ser alterado).
+	-definição do sensor(em código):
+		void MinimalSensor::describe(QString type)
+		{
+			// Calling parent function
+			Sensor::describe(type);
+
+			// Describing our parameters
+			Descriptor d = addTypeDescription(type, "It simply set 3 sensory units to 0.5", "This is an exemplificative sensor that create three sensory units and simply set them to a costant 0.5 value every time");
+			d.describeString("neuronsIterator").def("neuronsIterator").help("The name of the resource associated with the neural network iterator (default is \"neuronsIterator\")");
+		}
+	-Quando o sensor criado será usaddo por um expe5rimento com mais de um robo, o sensor deve se referir ao robo especifico do grupo, 
+	 isso é feito pela função actualResourceNameForMultirobot(), que pega o nome do recurso genérico e retorna o nome que o sensor deve usar.
+	 exemplo (em código):
+	 	MinimalSensor::MinimalSensor(ConfigurationParameters& params, QString prefix) :
+			Sensor(params, prefix), m_neuronsIteratorResource(actualResourceNameForMultirobot(ConfigurationHelper::getString(params, prefix + "neuronsIterator", "neuronsIterator"))), m_neuronsIterator(NULL){
+				addUsableResource(m_neuronsIteratorResource);
+			}
+
+		MinimalSensor::~MinimalSensor(){
+		}
+
+	-A função size() retorna quantas unidades do sensor será utilizado(este valor deve ser constante durante a vida útil do sensor)
+		int MinimalSensor::size(){
+			return 3;
+		}
