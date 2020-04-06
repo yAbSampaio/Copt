@@ -53,7 +53,7 @@ RELATÓRIO SEMANAL
 			Descriptor d = addTypeDescription(type, "It simply set 3 sensory units to 0.5", "This is an exemplificative sensor that create three sensory units and simply set them to a costant 0.5 value every time");
 			d.describeString("neuronsIterator").def("neuronsIterator").help("The name of the resource associated with the neural network iterator (default is \"neuronsIterator\")");
 		}
-	-Quando o sensor criado será usaddo por um expe5rimento com mais de um robo, o sensor deve se referir ao robo especifico do grupo, 
+	-Quando o sensor criado será usaddo por um experimento com mais de um robo, o sensor deve se referir ao robo especifico do grupo, 
 	 isso é feito pela função actualResourceNameForMultirobot(), que pega o nome do recurso genérico e retorna o nome que o sensor deve usar.
 	 exemplo (em código):
 	 	MinimalSensor::MinimalSensor(ConfigurationParameters& params, QString prefix) :
@@ -67,4 +67,49 @@ RELATÓRIO SEMANAL
 	-A função size() retorna quantas unidades do sensor será utilizado(este valor deve ser constante durante a vida útil do sensor)
 		int MinimalSensor::size(){
 			return 3;
+		}
+	-A função resourceChanged() é usada para inicializar os ponteiros com os recursos necessários e definir o rótulo das unidades sensoriais 
+	 correspondentes que são usadas pela interface gráfica para exibir os elementos do controlador dos robôs.
+	-A função resourceChanged() é chamada sempre que um recurso usado pelo sensor é alterado.
+		void MinimalSensor::resourceChanged(QString resourceName, ResourceChangeType changeType)
+		{
+			if (changeType == Deleted) {
+				resetNeededResourcesCheck();
+				return;
+			}
+
+			if (resourceName == m_neuronsIteratorResource) {
+				m_neuronsIterator = getResource<NeuronsIterator>();
+				m_neuronsIterator->setCurrentBlock(name());
+				for(int i = 0; i < size(); i++, m_neuronsIterator->nextNeuron()) {
+					m_neuronsIterator->setGraphicProperties("m" + QString::number(i), 0.0, 1.0, Qt::red);
+				}
+			} else if (resourceName != m_additionalInputsResource) {
+				Logger::info("Unknown resource " + resourceName + " for " + name());
+			}
+		}
+
+	-A função update () cuida da atualização do estado das unidades sensoriais. Essa função é chamada a cada passo do tempo, consequentemente, 
+	 as unidades sensoriais são atualizadas a cada passo do tempo. Nesse caso.
+	 	checkAllNeededResourcesExist() - É uma função auxiliar que verifica se todos os recursos que o sensor declarou usar já existem.
+
+		void MinimalSensor::update()
+		{
+			checkAllNeededResourcesExist();
+
+			ResourcesLocker locker(this);
+
+			m_neuronsIterator->setCurrentBlock(name());
+			for (unsigned int i = 0; i < m_additionalInputs.size(); i++, m_neuronsIterator->nextNeuron()) {
+				m_neuronsIterator->setInput(0.5);
+			}
+		}
+
+	-Esse sensor define o estado de ativação das 8 unidades sensoriais que codificam o estado dos sensores infravermelhos correspondentes do Khepera, ]
+	 com base no fato de os raios virtuais que partem de cada sensor simulado cruzarem um objeto do ambiente e com base na distância entre os sensores. 
+	 sensor e o ponto de interseção. Esse cálculo é feito pela função: 
+	 roximityIRSensorController()->activation() função da classe do robo que é chamda em update() função do sensor.
+	-Observe também como o estado do sensor calculado pelo proximidadeIRSensorController () -> activation () não é atribuído diretamente à unidade 
+	 sensorial correspondente, mas é passado primeiro para a função applyNoise() que retorna um valor perturbado pelo ruído.
+		class KheperaProximityIRSensor : public KheperaSensor{
 		}
