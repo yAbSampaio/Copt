@@ -1,6 +1,6 @@
 Logica
 	-Posicionar
-		- Setar o posicionar o robo numa sala de canto de preverencia na parede
+		- Setar o posicionar o robo no canto de uma sala
 	-Estabelecer variveis necessarias p/ realizar curvas de 90° e posteriamente, de toda a volta de 180° na forma de U(rotacionando no proprio eixo)
 	-Introduzir na logica uma verificação se a sala já foi limpa
 	-Adaptar a logica de seguir parede com a já existente
