@@ -1,76 +1,56 @@
-#include bool
+#include <math.h>
+
+#define True 1
+#define False 0
 #define MaxVelocity 1
 
-void PositionRobot(??type?? m_robot){ //this function positions the robot on the corner 
-	v = 1
+void CleamRoomHardMode(int m_robot){ //this function positions the robot on the corner 
+	//_____________Logic___________________
+
+	v = 1 ;// the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
+	int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
+	float theta, distance, vetX, vetY;
+
+	// Room's variables
+	int x0_room, y0_room, x1_room, y1_room, width_room, height_room;
+	int Room_is_clean = False;
+	
+	// Robots informations
+	int diameter_robot;
+
+
 	//go find some corner, and go to the corner
-	while( m_robot->FrontProximityIRSensor != true ){
-		m_robot->wheelsController()->setSpeeds(v*MaxVelocity, v*MaxVelocity);
-	}
-	while( m_robot->RightProximityIRSensor != true ){
-		m_robot->wheelsController()->setSpeeds(v*MaxVelocity, -v*MaxVelocity);
-	}
-	while( m_robot->FrontProximityIRSensor != true ){
-		m_robot->wheelsController()->setSpeeds(v*MaxVelocity, v*MaxVelocity);
-	}
-	while( m_robot->RightProximityIRSensor == false && m_robot->BackProximityIRSensor == false ){
-		m_robot->wheelsController()->setSpeeds(v*MaxVelocity, -v*MaxVelocity);
-	}
-	// now the robot is positioned
-}
 
+	vetX = m_robot->position().x - x0_room; // creating the direction vector of way to be covered
+	vetY = m_robot->position().y - y0_room;
 
-//_____________Logic___________________
-               
-Position_robot(m_robot);
+	theta = asin(vetX/vetY) * 180 / M_PIf128; //Calculates the angle of the direction vector of way to be covered
+	
+	m_robot->turn(360 - (180 - m_robot->getAngle() ) + theta ); //The Turn function turns the robot in 'argument' degrees clockwise
+						// The getAngle function return the degrees of robot in clockwise, regarding of Right side
+	distance = sqrt(pow(vetX, 2) + pow(vetY, 2)); //Calculates the distance that robot need travel to reach the corner
 
-v = 1 // the variable 'v' need to stay in range [0,1]
-int last_track = 0 //the value of 'last_track' is '0' for right, and '1' for left
-bool Room_is_clean = false
-while(){
-	//go to the wall
-	while( m_robot->FrontProximityIRSensor != true ){
-		m_robot->wheelsController()->setSpeeds(v*MaxVelocity, v*MaxVelocity);
-	}
-	 //verify if in the next row have a wall
-	if (( last_track == 0 && m_robot->LeftProximityIRSensor == True ) ||
-		( last_track == 1  m_robot->RightProximityIRSensor == True )) {
-		break
-	}
-	if ( last_track == 1 ){
+	m_robot->run(distance); //Travel to the corner
+
+	m_robot->turn(360 - m_robot->getAngle()); // Turn the robot to the right
+
+	// NOW THE ROBOT IS POSITIONED
+
+	while(Room_is_clean == False || m_robot->position().y < height_room - diameter_robot/2){ //Stop when the room is clear or the robot arrive the end of room
+		//go to the wall
+		m_robot->run(width_room);
+
 		//turn 90 degrees, to stand parallel with the wall
-		while( m_robot->LeftProximityIRSensor != true){
-			m_robot->wheelsController()->setSpeeds(v*MaxVelocity, -v*MaxVelocity);
-		}
+		m_robot->turn((360 - m_robot->getAngle() - 90 ) * last_track);
 
 		//travel the diameter of the robot
-		while( /*some method to verify how much the robot travel*/ true ){
-			m_robot->wheelsController()->setSpeeds(v*MaxVelocity, v*MaxVelocity);
-		}
+		m_robot->run(diameter_robot);
 
 		//turn 90 degrees, to stand with the back to the wall
-		while( m_robot->BackProximityIRSensor != true ){
-			m_robot->wheelsController()->setSpeeds(v*MaxVelocity, -v*MaxVelocity);
-		}
+		m_robot->turn((360 - m_robot->getAngle() - 90 ) * last_track);
+
 		// so that in the next loop the robot turn to the other side
-		last_track = 0
+		last_track  *= -1;
 
-	}else if( last_track == 0 ){
-		//turn 90 degrees, to stand parallel with the wall
-		while( m_robot->RightProximityIRSensor != true){
-			m_robot->wheelsController()->setSpeeds(-v*MaxVelocity, v*MaxVelocity);
-		}
-
-		//travel the diameter of the robot
-		while( /*some method to verify how much the robot travel*/ true ){
-			m_robot->wheelsController()->setSpeeds(v*MaxVelocity, v*MaxVelocity);
-		}
-
-		//turn 90 degrees, to stand with the back to the wall
-		while( m_robot->BackProximityIRSensor != true ){
-			m_robot->wheelsController()->setSpeeds(-v*MaxVelocity, v*MaxVelocity);
-		}
-		// so that in the next loop the robot turn to the other side
-		last_track = 1
 	}
 }
