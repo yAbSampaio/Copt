@@ -4,10 +4,36 @@
 #define False 0
 #define MaxVelocity 1
 
-void CleamRoomHardMode(int m_robot){ //this function positions the robot on the corner 
+void TurnRobot(type m_robot, float degrees){
+	int v = 10; //the velocity for the motors
+	float clock;
+	float DegreesCycles = 1; //how many clocks are necessary to turn 1 degrees
+	float NecessaryClocks = DegreesCycles*degrees; // how many clocks are necessary to turn the amount of degrees requested
+	clock = m_neuronsIterator->setCurrentBlock(name());
+	int endClock = clock + NecessaryClocks;
+	while(clock < endClock){
+		m_robot->wheelsController()->setSpeeds(v, -v);
+		clock = m_neuronsIterator->setCurrentBlock(name());
+	}
+}
+
+void RunRobot(type m_robot, float distance){
+	int v = 10; //the velocity for the motors
+	float clock;
+	float DistanceCycles = 1; //how many clocks are necessary to run for 1 distance unity
+	float NecessaryClocks = DistanceCycles*distance; // how many clocks are necessary to go through the amount of distance requested
+	clock = m_neuronsIterator->setCurrentBlock(name());
+	int endClock = clock + NecessaryClocks;
+	while(clock < endClock){
+		m_robot->wheelsController()->setSpeeds(v, v);
+		clock = m_neuronsIterator->setCurrentBlock(name());
+	}
+}
+
+void CleamRoomHardMode(type m_robot){ //this function positions the robot on the corner 
 	//_____________Logic___________________
 
-	v = 1 ;// the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
+	int v = 1 ;// the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
 	int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
 	float theta, distance, vetX, vetY;
 
@@ -26,28 +52,28 @@ void CleamRoomHardMode(int m_robot){ //this function positions the robot on the 
 
 	theta = asin(vetX/vetY) * 180 / M_PIf128; //Calculates the angle of the direction vector of way to be covered
 	
-	m_robot->turn(360 - (180 - m_robot->getAngle() ) + theta ); //The Turn function turns the robot in 'argument' degrees clockwise
+	m_robot->TurnRobot(360 - (180 - m_robot->getAngle() ) + theta ); //The Turn function turns the robot in 'argument' degrees clockwise
 						// The getAngle function return the degrees of robot in clockwise, regarding of Right side
 	distance = sqrt(pow(vetX, 2) + pow(vetY, 2)); //Calculates the distance that robot need travel to reach the corner
 
-	m_robot->run(distance); //Travel to the corner
+	m_robot->RunRobot(distance); //Travel to the corner
 
-	m_robot->turn(360 - m_robot->getAngle()); // Turn the robot to the right
+	m_robot->TurnRobot(360 - m_robot->getAngle()); // Turn the robot to the right
 
 	// NOW THE ROBOT IS POSITIONED
 
 	while(Room_is_clean == False || m_robot->position().y < height_room - diameter_robot/2){ //Stop when the room is clear or the robot arrive the end of room
 		//go to the wall
-		m_robot->run(width_room);
+		m_robot->RunRobot(width_room);
 
 		//turn 90 degrees, to stand parallel with the wall
-		m_robot->turn((360 - m_robot->getAngle() - 90 ) * last_track);
+		m_robot->TurnRobot((360 - m_robot->getAngle() - 90 ) * last_track);
 
 		//travel the diameter of the robot
-		m_robot->run(diameter_robot);
+		m_robot->RunRobot(diameter_robot);
 
 		//turn 90 degrees, to stand with the back to the wall
-		m_robot->turn((360 - m_robot->getAngle() - 90 ) * last_track);
+		m_robot->TurnRobot((360 - m_robot->getAngle() - 90 ) * last_track);
 
 		// so that in the next loop the robot turn to the other side
 		last_track  *= -1;
