@@ -155,11 +155,12 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	#define True 1
 	#define False 0
+	#define NEAR_SENSOR 0.75
 	int Turning = False;
 	int Running = False;
 
     int effect = 0; //what the robot need to do on current step
-	int PositionInTheCorner = 0;
+	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
 
 	float VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
 	int Clock;

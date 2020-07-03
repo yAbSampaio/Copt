@@ -370,9 +370,9 @@ void MarxBotCleaningExperiment::initStep(int step) {
     if (isnan(valueToCheck) || isinf(valueToCheck)) {
        farsa::Logger::warning("Found a NaN value, recreating world and restart"
                                                     "ing trial from scratch");
-    restartTrial();
-    m_recreateWorld = true;
-    return;
+        restartTrial();
+        m_recreateWorld = true;
+        return;
     }
     environment::Room* actualy_room = nullptr;
     for (auto room : rooms) {
@@ -787,18 +787,18 @@ int MarxBotCleaningExperiment::TurnRobot( int degrees){
     Clock = evonet->getInput(8);
     
     std::cout<< "Clock: " << Clock << "  ";
-    if ( Turning && Clock < endClock ){
+    if ( Turning && Clock <= endClock ){
         std::cout<< "Girando" << std::endl;
-		m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees, -VelPerStepForOneDregrees);
+		m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees*(degrees/abs(degrees)), -VelPerStepForOneDregrees*(degrees/abs(degrees)));
         return 0;
-    }else if( Turning && Clock >= endClock ){
+    }else if( Turning && Clock > endClock ){
         Turning = False;
         std::cout<< "Finda a girada, Orientation: "<< (robot->orientation(arena->getPlane())+4.708324429999999) * (180 /M_PI) <<std::endl;
         return 1;
     }else{
         std::cout<< "Inicia a girada" << std::endl;
         Turning = True;
-        NecessaryClocks = DegreesCycles*degrees; // how many clocks are necessary to turn the amount of degrees requested
+        NecessaryClocks = DegreesCycles*abs(degrees); // how many clocks are necessary to turn the amount of degrees requested
         endClock = Clock + NecessaryClocks;
         std::cout<< "clock: " << Clock << " NC: " << NecessaryClocks << "  endClock:  " << endClock << std::endl;
         return 0;
@@ -814,7 +814,7 @@ float MarxBotCleaningExperiment::getAngle(){
     farsa::ResourceVector<farsa::real>* m_additionalInputs;
     m_additionalInputs = getResource<farsa::ResourceVector<farsa::real> >
                                             ("agent[0]:additionalInputs");
-    return (robot->orientation(arena->getPlane())+4.708324429999999) * (180 /M_PI);
+    return (robot->orientation(arena->getPlane())+4.708324429999999) * (180 /M_PIf128);
 }
 
 int MarxBotCleaningExperiment::RunRobot( float distance){
@@ -829,11 +829,17 @@ int MarxBotCleaningExperiment::RunRobot( float distance){
     farsa::MarXbot* m_robot = dynamic_cast<farsa::MarXbot*>(robot);
     Clock = evonet->getInput(8);
 
-    if (Running && Clock < endClock){
-        m_robot->wheelsController()->setSpeeds(1, 1);
-        return 0;
+    if (Running && Clock <= endClock){
+        if (evonet->getInput(5) > NEAR_SENSOR || evonet->getInput(6) > NEAR_SENSOR){
+            std::cout<< "Tem parede, parou de andar" << std::endl;
+            Running = False;
+            return -1;
+        }else{
+            m_robot->wheelsController()->setSpeeds(1, 1);
+            return 0;
+        }
     }else if (Running && Clock > endClock){
-        std::cout<< "finda a caminhada ("<< robot->position().x << ", " << robot->position().y <<std::endl;
+        std::cout<< "Finda a caminhada ("<< robot->position().x << ", " << robot->position().y <<std::endl;
         Running = False;
         return 1;
     }else{
@@ -856,48 +862,69 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
                                             ("agent[0]:additionalInputs");
     farsa::Evonet* evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot* m_robot = dynamic_cast<farsa::MarXbot*>(robot);
-
+    environment::Room* actualy_room = nullptr;
+    for (auto room : rooms) {
+        int query = room->contains(robot);
+        if (query == environment::definitions::NO_OVERLAP) {
+            continue;
+        } else {
+            actualy_room = room;
+            break;
+        }
+    }
 
 	// //_____________Logic___________________
-
 	int v = 1 ;// the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
 	int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
 	float theta, distance, vetX, vetY;
 
 	// Room's variables
-	int x0_room, y0_room, x1_room, y1_room, width_room, height_room;
-	int Room_is_clean = False;
-	
+	int x0_room = actualy_room->geometry().x() - actualy_room->size_w()/2;
+    int y0_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
+    int x1_room = actualy_room->geometry().x() + actualy_room->size_w()/2;
+    int y1_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
+    int width_room = actualy_room->size_w();
+    int height_room = actualy_room->size_h();
+
 	// Robots informations
 	int diameter_robot;
-
-    int i = 0;
+    // 7-0 lado esquerdo
+    // 1-2 atras
+    // 3-4 lado direito
+    // 5-6 frente
+    // valor de ativamento do sensor ≃ 0.75
     
 	//go find some corner, and go to the corner
     if (effect == 0){
         if (PositionInTheCorner == 0 ){
             vetX = m_robot->position().x - x0_room; // creating the direction vector of way to be covered
             vetY = m_robot->position().y - y0_room;
-
-            theta = asin(vetX/vetY) * 180 / M_PIf128; //Calculates the angle of the direction vector of way to be covered
+            
+            theta = (atan2f(vetX, vetY)) * (180/M_PIf128);
+            // theta = (atan2f(vetX, vetY)+M_PIf128/2) * (180/M_PIf128); //Calculates the angle of the direction vector of way to be covered
             distance = sqrt(pow(vetX, 2) + pow(vetY, 2)); //Calculates the distance that robot need travel to reach the corner]
+            // precisa testar
+            std::cout<< "vetX: " << vetX << " vetY: " << vetY << " theta: " << theta << " distance: " << distance << std::endl;
             PositionInTheCorner = 1;
         }
         if (PositionInTheCorner == 1 ){
-            TurnRobot(360- (180 - getAngle() ) + theta ); //The Turn function turns the robot in 'argument' degrees clockwise
+            if( TurnRobot( 180 - (getAngle() + theta)) ){ //The Turn function turns the robot in 'argument' degrees clockwise
                                 // The getAngle function return the degrees of robot in clockwise, regarding of Right side
-            PositionInTheCorner = 2;
+                PositionInTheCorner = 2;
+            }
         }
 
         if (PositionInTheCorner == 2 ){
-            RunRobot(distance); //Travel to the corner
-            PositionInTheCorner = 3;
+            if( RunRobot(distance) ){ //Travel to the corner
+                PositionInTheCorner = 3;
+            }
         }
 
         if (PositionInTheCorner == 3 ){
-            TurnRobot(360 - getAngle()); // Turn the robot to the right
-            PositionInTheCorner = 1;
-            effect = 0;
+            if( TurnRobot(getAngle()) ){ // Turn the robot to the right
+                PositionInTheCorner = 0;
+                effect = 0;
+            }
         }
     }
 	// NOW THE ROBOT IS POSITIONED
