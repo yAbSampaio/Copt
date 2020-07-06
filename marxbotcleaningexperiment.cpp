@@ -469,9 +469,9 @@ void MarxBotCleaningExperiment::endStep(int step) {
     farsa::ResourceVector<farsa::real>* m_additionalInputs;
     m_additionalInputs = getResource<farsa::ResourceVector<farsa::real> >
                                             ("agent[0]:additionalInputs");
-    std::cout<< "position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() <<std::endl;
+    //std::cout<< "position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() <<std::endl;
     CleamRoomHardMode();
-    
+    //RunRobot(10);
 
     environment::Room* root = nullptr;
     int query;
@@ -773,7 +773,7 @@ void MarxBotCleaningExperiment::createRooms() {
 
 // Functions by Lucas T. G.{
 
-int MarxBotCleaningExperiment::TurnRobot( int degrees){
+int MarxBotCleaningExperiment::TurnRobot( float degrees){
     farsa::ResourcesLocker locker(this);
     farsa::RobotOnPlane* robot =
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
@@ -786,23 +786,32 @@ int MarxBotCleaningExperiment::TurnRobot( int degrees){
     farsa::MarXbot* m_robot = dynamic_cast<farsa::MarXbot*>(robot);
     Clock = evonet->getInput(8);
     
-    std::cout<< "Clock: " << Clock << "  ";
+    //std::cout<< "Clock: " << Clock << "  ";
     if ( Turning && Clock <= endClock ){
-        std::cout<< "Girando" << std::endl;
-		m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees*(degrees/abs(degrees)), -VelPerStepForOneDregrees*(degrees/abs(degrees)));
+        // std::cout<< "Girando" << std::endl;
+        m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees*(degrees/abs(degrees)), -VelPerStepForOneDregrees*(degrees/abs(degrees)));
         return 0;
     }else if( Turning && Clock > endClock ){
+        if ( endDegrees-getAngle() > -1 && endDegrees-getAngle() < 1 ){
+            float vel = VelPerStepForOneDregrees*(endDegrees-getAngle());
+            std::cout<< "delta: " << endDegrees << " - " << getAngle() << " = " << endDegrees-getAngle() << std::endl;
+            m_robot->wheelsController()->setSpeeds(vel*(degrees/abs(degrees)), -vel*(degrees/abs(degrees)));
+            std::cout<< "delta: " << endDegrees << " - " << getAngle() << " = " << endDegrees-getAngle() << std::endl;
+            }
         Turning = False;
-        std::cout<< "Finda a girada, Orientation: "<< (robot->orientation(arena->getPlane())+4.708324429999999) * (180 /M_PI) <<std::endl;
+        // std::cout<< "Finda a girada, Orientation: "<< (robot->orientation(arena->getPlane())+4.708324429999999) * (180 /M_PI) <<std::endl;
         return 1;
     }else{
-        std::cout<< "Inicia a girada" << std::endl;
+        // std::cout<< "Inicia a girada" << std::endl;
         Turning = True;
-        NecessaryClocks = DegreesCycles*abs(degrees); // how many clocks are necessary to turn the amount of degrees requested
+        endDegrees = abs(degrees)-getAngle();
+        NecessaryClocks = DegreesCycles*(abs(degrees)); // how many clocks are necessary to turn the amount of degrees requested
         endClock = Clock + NecessaryClocks;
-        std::cout<< "clock: " << Clock << " NC: " << NecessaryClocks << "  endClock:  " << endClock << std::endl;
+        // std::cout<< "clock: " << Clock << " NC: " << NecessaryClocks << "  endClock:  " << endClock << std::endl;
+        // std::cout<< "Girando" << std::endl;
+        m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees*(degrees/abs(degrees)), -VelPerStepForOneDregrees*(degrees/abs(degrees)));
         return 0;
-	}
+    }
     return 0;
 }
 
@@ -828,26 +837,28 @@ int MarxBotCleaningExperiment::RunRobot( float distance){
     farsa::Evonet* evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot* m_robot = dynamic_cast<farsa::MarXbot*>(robot);
     Clock = evonet->getInput(8);
-
+    std::cout<< "Clock: " << Clock << "  ";
     if (Running && Clock <= endClock){
-        if (evonet->getInput(5) > NEAR_SENSOR || evonet->getInput(6) > NEAR_SENSOR){
-            std::cout<< "Tem parede, parou de andar" << std::endl;
+        if (evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
+            //std::cout<< "Tem parede, parou de andar" << std::endl;
+            m_robot->wheelsController()->setSpeeds(-3.5, -3.5);
             Running = False;
-            return -1;
+            return 1;
         }else{
-            m_robot->wheelsController()->setSpeeds(1, 1);
+            m_robot->wheelsController()->setSpeeds(VelPerStepForOneDistance, VelPerStepForOneDistance);
+            std::cout<<"("<< robot->position().x << ", " << robot->position().y<<")" <<std::endl;
             return 0;
         }
     }else if (Running && Clock > endClock){
-        std::cout<< "Finda a caminhada ("<< robot->position().x << ", " << robot->position().y <<std::endl;
+        //std::cout<< "Finda a caminhada ("<< robot->position().x << ", " << robot->position().y<<")" <<std::endl;
         Running = False;
         return 1;
     }else{
-        std::cout<< "Inicia a caminhada" << std::endl;
+        //std::cout<< "Inicia a caminhada" << std::endl;
         Running = True;
-        NecessaryClocks = DistanceCycles*distance; // how many clocks are necessary to go through the amount of distance requested
+        NecessaryClocks = (distance/DistanceCycles); // how many clocks are necessary to go through the amount of distance requested
         endClock = Clock + NecessaryClocks;
-        std::cout<< "clock: " << Clock << " NC: " << NecessaryClocks << "  endClock:  " << endClock << std::endl;
+        //std::cout<< "clock: " << Clock << " NC: " << NecessaryClocks << "  endClock:  " << endClock << std::endl;
         return 0;
     }
 }
@@ -875,25 +886,26 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 
 	// //_____________Logic___________________
 	int v = 1 ;// the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
-	int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
-	float theta, distance, vetX, vetY;
+	//int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
+	float  vetX, vetY;
 
 	// Room's variables
-	int x0_room = actualy_room->geometry().x() - actualy_room->size_w()/2;
-    int y0_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
-    int x1_room = actualy_room->geometry().x() + actualy_room->size_w()/2;
-    int y1_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
-    int width_room = actualy_room->size_w();
-    int height_room = actualy_room->size_h();
-
+	float x0_room = actualy_room->geometry().x() - actualy_room->size_w()/2;
+    float y0_room = actualy_room->geometry().y() - actualy_room->size_h()/2;
+    float x1_room = actualy_room->geometry().x() + actualy_room->size_w()/2;
+    float y1_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
+    float width_room = actualy_room->size_w();
+    float height_room = actualy_room->size_h();
+    //std::cout<< "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y()<< ") (" << actualy_room->size_w()/2 << "," << actualy_room->size_h()/2 << ")" << std::endl;
+    //std::cout<< "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << std::endl;
 	// Robots informations
-	int diameter_robot;
+	
     // 7-0 lado esquerdo
     // 1-2 atras
     // 3-4 lado direito
     // 5-6 frente
     // valor de ativamento do sensor ≃ 0.75
-    
+    std::cout<< "|| Orientation: " << getAngle() <<std::endl;
 	//go find some corner, and go to the corner
     if (effect == 0){
         if (PositionInTheCorner == 0 ){
@@ -902,7 +914,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
             
             theta = (atan2f(vetX, vetY)) * (180/M_PIf128);
             // theta = (atan2f(vetX, vetY)+M_PIf128/2) * (180/M_PIf128); //Calculates the angle of the direction vector of way to be covered
-            distance = sqrt(pow(vetX, 2) + pow(vetY, 2)); //Calculates the distance that robot need travel to reach the corner]
+            distance = (sqrt(pow(vetX, 2) + pow(vetY, 2)))-(diameter_robot/2); //Calculates the distance that robot need travel to reach the corner]
             // precisa testar
             std::cout<< "vetX: " << vetX << " vetY: " << vetY << " theta: " << theta << " distance: " << distance << std::endl;
             PositionInTheCorner = 1;
@@ -914,8 +926,9 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
             }
         }
 
-        if (PositionInTheCorner == 2 ){
+        if (PositionInTheCorner == 2 ){;
             if( RunRobot(distance) ){ //Travel to the corner
+            
                 PositionInTheCorner = 3;
             }
         }
@@ -923,7 +936,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
         if (PositionInTheCorner == 3 ){
             if( TurnRobot(getAngle()) ){ // Turn the robot to the right
                 PositionInTheCorner = 0;
-                effect = 0;
+                effect = 1;
             }
         }
     }
@@ -933,20 +946,28 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
         
     if (effect == 1){
     //go to the wall
-        if ( RunRobot(width_room) ){ //subtrair o diametro pra não haver colisões
+        if ( RunRobot(width_room+diameter_robot) ){ //subtrair o diametro pra não haver colisões
             effect = 2;
         }
     }
 
-    if ( m_robot->position().y > height_room - diameter_robot ){ // 
-        std::cout << "ultima carreira da sala"<< std::endl;
-    }
+    // if ( m_robot->position().y > height_room - diameter_robot ){ // 
+    //     std::cout << "ultima carreira da sala"<< std::endl;
+    // }
 
     if (effect == 2){
         //turn 90 degrees, to stand parallel with the wall
-        if ( TurnRobot((360 - getAngle() - 90 ) * last_track) ){
-            effect = 3;
+        if (last_track == -1){
+            if ( TurnRobot((90) * last_track) ){
+                effect = 3;
+            }
         }
+        else{
+            if ( TurnRobot((270) * last_track) ){
+                effect = 3;
+            }
+        }
+        
     }
 
     if (effect == 3){
@@ -958,11 +979,12 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 
     if (effect == 4){    
         //turn 90 degrees, to stand with the back to the wall
-        if ( TurnRobot((360 - getAngle() - 90 ) * last_track) ){
+        if ( TurnRobot(180 * last_track) ){
             effect = 1;
             // so that in the next loop the robot turn to the other side
             last_track  *= -1;
         }
+        
     }
 	// }
 }
