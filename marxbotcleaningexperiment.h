@@ -145,7 +145,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 // Functions by Lucas T. G.{
 
-	virtual int TurnRobot( int degrees);
+	virtual int TurnRobot( float degrees);
 
 	virtual float getAngle();
 
@@ -155,20 +155,24 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	#define True 1
 	#define False 0
-	#define NEAR_SENSOR 0.75
+	#define NEAR_SENSOR 0.65
 	int Turning = False;
 	int Running = False;
 
     int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
-
+	int last_track = -1;
 	float VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
+	float VelPerStepForOneDistance = 7.407407407407408; //that's the value for the speed
 	int Clock;
 	int DegreesCycles = 1; //how many clocks are necessary to turn 1 degrees
-	float DistanceCycles = 1; //how many clocks are necessary to run for 1 distance unity
+	float DistanceCycles = 0.01; //how many clocks are necessary to run for 1 distance unity
 	int NecessaryClocks; // how many clocks are necessary to turn the amount of degrees requested
 	int initClock;
 	int endClock;
+	float theta, distance;
+	float diameter_robot = 0.17;
+	float endDegrees;
 
 // } Functions by Lucas T. G.
 
