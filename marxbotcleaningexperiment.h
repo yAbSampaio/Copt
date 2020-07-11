@@ -145,7 +145,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 // Functions by Lucas T. G.{
 
-	virtual int TurnRobot( float degrees);
+	virtual void findRoom();
 
 	virtual int TurnRobot2( float degrees);
 
@@ -157,29 +157,35 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	#define True 1
 	#define False 0
-	#define NEAR_SENSOR 0.55
-	#define FAKE_ZERO 9.10352e-05
+	#define NEAR_SENSOR 0.65
+	#define FAR_SENSOR 0.05
+	#define FAKE_ZERO 5.10352e-04
+	#define PI_3_2_RAD 4.71239 //is 3/2pi in rad or 270 degrees
 	int Turning = False;
 	int Running = False;
 
     int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
-	int last_track -1;//the value of 'last_track' is '-1' for right, and '1' for left
+	int last_track = -1;//the value of 'last_track' is '-1' for right, and '1' for left
 
-	float VelPerStepForOneDistance = 7.407407407407408*2; //that's the value for the speed
+	float VelPerStepForOneDistance = 10;//7.407407407407408; //that's the value for the speed
 
 	float VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
 	int Clock;
 	int DegreesCycles = 1; //how many clocks are necessary to turn 1 degrees
-	float DistanceCycles = 0.01*2; //how many clocks are necessary to run for 1 distance unity
+	float DistanceCycles = 0.013500000000000014; //how many clocks are necessary to run for 1 distance unity
 	int NecessaryClocks; // how many clocks are necessary to turn the amount of degrees requested
 	float endDegrees;
 	int initClock;
 	int endClock;
 	float theta, distance;
+	int deg = 270;
+	int DegStep = 90;
+	int Feffect = 6;
+	//int walk = 1;
 
 	// Robots informations
-	float diameter_robot = 0.17;
+	float diameter_robot = 0.16;
 
 // } Functions by Lucas T. G.
 
