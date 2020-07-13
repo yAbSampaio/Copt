@@ -787,31 +787,44 @@ int MarxBotCleaningExperiment::TurnRobot2( float degrees){ //here degrees is the
         farsa::Evonet* evonet = getResource<farsa::Evonet>("evonet");
 
     farsa::MarXbot* m_robot = dynamic_cast<farsa::MarXbot*>(robot);
-    // Clock = evonet->getInput(8);
+    Clock = evonet->getInput(8);
+    if( degrees < 0 ){
+        degrees += 360;
+    }
+    if (degrees == 360){
+        degrees = 0;
+    }
+
+    //std::cout<< "Orientation: " << getAngle() << std::endl;
     
-    std::cout<< "Orientation: " << getAngle() << std::endl;
-    
-    std::cout<< "Clock: " << Clock << "  ";
+    //std::cout<< "Clock: " << Clock << "  ";
     if ( Turning && ( ( abs(getAngle() - degrees) >= 1 ) && ( abs(getAngle() - degrees) <= 359 ) ) ){
-        std::cout<< "Girando" << std::endl;
-		m_robot->wheelsController()->setSpeeds(VelPerStepForOneDregrees*last_track, -VelPerStepForOneDregrees*last_track);
+        //std::cout<< "Girando" << std::endl;
+        double vel = (getAngle()-degrees) * VelPerStepForOneDregrees;
+        if (vel > 10){
+            vel = 10;
+        }
+        //std::cout<< "vel: " << vel << std::endl;
+		m_robot->wheelsController()->setSpeeds(vel, -vel);
         return 0;
     }else if( Turning ){
         if( ( abs(getAngle() - degrees) < 1 ) && ( abs(getAngle() - degrees) > FAKE_ZERO ) ){
-            printf("if1\n");
+            //printf("if1\n");
             double vel = VelPerStepForOneDregrees*( getAngle() - degrees );
-            std::cout<< "delta(getAngle - degrees): " << getAngle() << " - " << degrees << " = " << getAngle()-degrees << "  vel: "<< vel <<std::endl;
+            //std::cout<< "delta(getAngle - degrees): " << getAngle() << " - " << degrees << " = " << getAngle()-degrees << "  vel: "<< vel <<std::endl;
             m_robot->wheelsController()->setSpeeds(vel, -vel);
             return 0;
 
         }else if( ( abs(getAngle()-360 - degrees) > FAKE_ZERO ) && ( abs(getAngle()-360 - degrees) < 1 ) ){
+            //printf("if2\n");
             double vel = VelPerStepForOneDregrees*( getAngle()-360 - degrees );
-            std::cout<< "delta(getAngle - degrees): " << getAngle() << " - " << degrees << " = " << getAngle()-degrees << "  vel: "<< vel <<std::endl;
+            //std::cout<< "delta(getAngle - degrees): " << getAngle() << " - " << degrees << " = " << getAngle()-degrees << "  vel: "<< vel <<std::endl;
             m_robot->wheelsController()->setSpeeds(vel, -vel);
             return 0;
 
         }else if( ( abs(getAngle() - degrees) <= FAKE_ZERO ) ){
             Turning = False;
+            m_robot->wheelsController()->setSpeeds(1, 1);
             std::cout<< "Finda a girada, Orientation: "<< getAngle() <<std::endl;
             return 1;
         }
@@ -850,7 +863,7 @@ int MarxBotCleaningExperiment::RunRobot( float distance){
     if (Running && Clock <= endClock){
         if (evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
             //std::cout<< "Tem parede, parou de andar" << std::endl;
-            m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance, -VelPerStepForOneDistance);
+            m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance/2, -VelPerStepForOneDistance/2);
             Running = False;
             return 1;
         }else{
@@ -859,9 +872,9 @@ int MarxBotCleaningExperiment::RunRobot( float distance){
             return 0;
         }
     }else if (Running && Clock > endClock){
-        //std::cout<< "Finda a caminhada ("<< robot->position().x << ", " << robot->position().y<<")" <<std::endl;
+        std::cout<< "Finda a caminhada ("<< robot->position().x << ", " << robot->position().y<<")" <<std::endl;
         Running = False;
-        m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance/2, -VelPerStepForOneDistance/2);
+        m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance/1.5, -VelPerStepForOneDistance/1.5);
         return 1;
     }else{
         std::cout<< "Inicia a caminhada" << std::endl;
@@ -900,15 +913,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 	float  vetX, vetY;
 
 	// Room's variables
-	float x0_room = actualy_room->geometry().x() - actualy_room->size_w()/2;
-    float y0_room = actualy_room->geometry().y() - actualy_room->size_h()/2;
-    float x1_room = actualy_room->geometry().x() + actualy_room->size_w()/2;
-    float y1_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
-    float width_room = actualy_room->size_w();
-    float height_room = actualy_room->size_h();
-    //std::cout<< "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y()<< ") (" << actualy_room->size_w()/2 << "," << actualy_room->size_h()/2 << ")" << std::endl;
-    //std::cout<< "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << std::endl;
-	
+    
     // 7-0 lado esquerdo
     // 1-2 atras
     // 3-4 lado direito
@@ -919,9 +924,17 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 	//go find some corner, and go to the corner
     if (effect == 0){
         if (PositionInTheCorner == 0 ){
-            vetX = m_robot->position().x - x0_room; // creating the direction vector of way to be covered
-            vetY = m_robot->position().y - y0_room;
-            
+            x0_room = actualy_room->geometry().x() - actualy_room->size_w()/2;
+            y0_room = actualy_room->geometry().y() - actualy_room->size_h()/2;
+            x1_room = actualy_room->geometry().x() + actualy_room->size_w()/2;
+            y1_room = actualy_room->geometry().y() + actualy_room->size_h()/2;
+            width_room = actualy_room->size_w();
+            height_room = actualy_room->size_h();
+            vetX = x0_room-m_robot->position().x; // creating the direction vector of way to be covered
+            vetY = y0_room-m_robot->position().y;
+            std::cout<< "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y()<< ") (" << actualy_room->size_w()/2 << "," << actualy_room->size_h()/2 << ")" << std::endl;
+            std::cout<< "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << std::endl;
+	
             theta = (atan2f(vetX, vetY)) * (180/M_PIf128);
             // theta = (atan2f(vetX, vetY)+M_PIf128/2) * (180/M_PIf128); //Calculates the angle of the direction vector of way to be covered
             distance = (sqrt(pow(vetX, 2) + pow(vetY, 2)))-(diameter_robot/2); //Calculates the distance that robot need travel to reach the corner]
@@ -930,7 +943,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
             PositionInTheCorner = 1;
         }
         if (PositionInTheCorner == 1 ){
-            if( TurnRobot2(180+theta) ){ //The Turn function turns the robot in 'argument' degrees clockwise
+            if( TurnRobot2((theta)) ){ //The Turn function turns the robot in 'argument' degrees clockwise
                                 // The getAngle function return the degrees of robot in clockwise, regarding of Right side
                 PositionInTheCorner = 2;
             }
@@ -938,7 +951,6 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 
         if (PositionInTheCorner == 2 ){;
             if( RunRobot(distance) ){ //Travel to the corner
-                m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance, -VelPerStepForOneDistance);
                 PositionInTheCorner = 3;
             }
         }
@@ -957,20 +969,31 @@ void MarxBotCleaningExperiment::CleamRoomHardMode(){ //this function positions t
 
 	// while(Room_is_clean == False || m_robot->position().y < height_room - diameter_robot/2){ //Stop when the room is clear or the robot arrive the end of room
     
-    if ( evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){ 
-        if ((evonet->getInput(0) > NEAR_SENSOR && evonet->getInput(7) > NEAR_SENSOR) || (evonet->getInput(3) > NEAR_SENSOR && evonet->getInput(4) > NEAR_SENSOR)){
-            if ((-1*(m_robot->position().x)+diameter_robot) >= x1_room){
-                std::cout << "ultima carreira da sala"<< std::endl;
-                DegStep = last_track*90;
-                effect = 5;
-            }     
-        }     
-     }
 
     if (effect == 1){
     //go to the wall
         if ( RunRobot(height_room-0.16) ){ //subtrair o diametro pra não haver colisões
             effect = 2;
+            if (evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
+                if (evonet->getInput(3) < FAR_SENSOR && evonet->getInput(4) < FAR_SENSOR){
+                    if (((m_robot->position().x+diameter_robot) <= x1_room) && ((m_robot->position().y+diameter_robot) <= y1_room) && walk){
+                        std::cout << "ultima carreira da sala"<< std::endl;
+                        DegStep = last_track*90;
+                        effect = 5;
+                        walk = 0;
+
+                    }
+                }
+                else if(evonet->getInput(0) < FAR_SENSOR && evonet->getInput(7) < FAR_SENSOR){
+                    if (((-1*(m_robot->position().x)+diameter_robot) >= (x1_room)) && ((-1*(m_robot->position().y)+diameter_robot) >= (y1_room)) && walk){
+                        std::cout << "ultima carreira da sala"<< std::endl;
+                        DegStep = last_track*90;
+                        effect = 5;
+                        walk = 0;
+
+                    }
+                }
+            }
         }
     }
 
@@ -1039,74 +1062,75 @@ void MarxBotCleaningExperiment::findRoom(){
     }
 
 
-    if (Feffect == 5){
-        if(deg = 360){
-            deg = 0;
-        }
+    if (effect2 == 5){
+        std::cout<< "Clock Fe 5 : " << Clock << " \n ";
         if (TurnRobot2(deg)){
-           Feffect = 6;     
+           effect2 = 6;     
         }  
     }
     
-    else if (Feffect == 6){
+    else if (effect2 == 6){
         Clock = evonet->getInput(8);
         std::cout<< "Clock Fe 6 : " << Clock << " \n ";
-        m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance, -VelPerStepForOneDistance);
         if(evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
             std::cout << "Parede frente"<< std::endl;
             deg += DegStep;
-            Feffect = 5;
+            effect2 = 5;
         }
         if (last_track == -1 ){ 
             if (evonet->getInput(0) < FAR_SENSOR && evonet->getInput(7) < FAR_SENSOR){
                 std::cout << "corredor lado esquerdo"<< std::endl;
-                Feffect = 7;
+                effect2 = 7;
             }
                 
             
         }else{
             if (evonet->getInput(3) < FAR_SENSOR && evonet->getInput(4) < FAR_SENSOR){
                 std::cout << "corredor lado direito"<< std::endl;
-                Feffect = 7;
+                effect2 = 7;
             }
         }
+        m_robot->wheelsController()->setSpeeds(VelPerStepForOneDistance, VelPerStepForOneDistance);
     }
 
-    else if (Feffect == 7){//Criar tratamento de angulo   
+    else if (effect2 == 7){   
+        std::cout<< "Clock Fe 7 : " << Clock << " \n ";
+        std::cout<< "deg-DegStep : " << deg-DegStep << " \n ";
         if (TurnRobot2(deg-DegStep)){
-            Feffect = 8;
+            effect2 = 8;
         }
             
     }
 
-    else if (Feffect == 8){
-        if (evonet->getInput(0) > NEAR_SENSOR && evonet->getInput(7) > NEAR_SENSOR){
-            if (evonet->getInput(3) > NEAR_SENSOR && evonet->getInput(4) > NEAR_SENSOR){
-                m_robot->wheelsController()->setSpeeds(-VelPerStepForOneDistance, -VelPerStepForOneDistance);
+    else if (effect2 == 8){
+        std::cout<< "Clock Fe 8 : " << Clock << " \n ";
+        if (actualy_room == old_room_){    
+            m_robot->wheelsController()->setSpeeds(10, 10);
+        }
+        else{
+            effect2 = 9;
+        }    
+    }
+    else if (effect2 == 9){
+        std::cout<< "Clock Fe 9 : " << Clock << " \n ";
+        if (!cleaned_rooms_[actualy_room]){
+            if(RunRobot(diameter_robot*2)){
+                effect = 0;
+                last_track = -1;
+                walk = 1;
+                effect2 = 6;
             }
         }
         else{
-            Feffect = 9;
-        }    
-    }
-    else if (Feffect == 9){
-        if (actualy_room != old_room_){
-            if (!cleaned_rooms_[actualy_room]){
-                if(RunRobot(diameter_robot*2)){
-                    effect = 0;
-                    last_track = -1;
-                }
-            }
-            else{
                 //if (RunRobot(diameter_robot/2 && walk)){
                 //    walk = 0;
                 //}
-                /* else*/ if (TurnRobot2(deg)){
-                    Feffect = 6;
-                }
+                /* else*/ 
+            if (TurnRobot2(deg)){
+                    effect2 = 6;
+            }
             }
         }
-    }
 }
 // 7-0 lado esquerdo
 // 1-2 atras
