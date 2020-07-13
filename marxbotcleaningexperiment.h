@@ -179,10 +179,16 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	int initClock;
 	int endClock;
 	float theta, distance;
-	int deg = 270;
+	int deg = 180;
 	int DegStep = 90;
-	int Feffect = 6;
-	//int walk = 1;
+	int effect2 = 6;
+	int walk = 1;
+	float x0_room;
+    float y0_room;
+    float x1_room;
+    float y1_room;
+    float width_room;
+    float height_room;
 
 	// Robots informations
 	float diameter_robot = 0.16;
