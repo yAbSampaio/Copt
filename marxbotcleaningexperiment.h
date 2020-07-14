@@ -157,8 +157,8 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	#define True 1
 	#define False 0
-	#define NEAR_SENSOR 0.65
-	#define FAR_SENSOR 0.05
+	#define NEAR_SENSOR 0.60
+	#define FAR_SENSOR 0.15
 	#define FAKE_ZERO 5.10352e-04
 	#define PI_3_2_RAD 4.71239 //is 3/2pi in rad or 270 degrees
 	int Turning = False;
@@ -189,7 +189,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
     float y1_room;
     float width_room;
     float height_room;
-
+	int teste = 1;
 	// Robots informations
 	float diameter_robot = 0.16;
 
