@@ -161,6 +161,9 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	#define FAR_SENSOR 0.15
 	#define FAKE_ZERO 5.10352e-04
 	#define PI_3_2_RAD 4.71239 //is 3/2pi in rad or 270 degrees
+	#define DEV_MOD 0
+	#define PRINT_DEV if(DEV_MOD){std::cout
+	#define PRINTEND_DEV std::endl;}
 	int Turning = False;
 	int Running = False;
 
