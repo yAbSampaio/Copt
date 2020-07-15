@@ -1013,16 +1013,17 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
             height_room = actualy_room->size_h();
             vetX = m_robot->position().x - x0_room; // creating the direction vector of way to be covered
             vetY = m_robot->position().y - y0_room;
+
             PRINT_DEV << "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y() << ") (" << actualy_room->size_w() / 2 << "," << actualy_room->size_h() / 2 << ")" << PRINTEND_DEV;
             PRINT_DEV << "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << PRINTEND_DEV;
 
-            theta = (atan2f(vetX, vetY)) * (180 / M_PIf128); //Calculates the angle of the direction vector of way to be covered
+            theta = (atan2f(vetY, vetX)) * (180 / M_PIf128); //Calculates the angle of the direction vector of way to be covered
 
             distance = (sqrt(pow(vetX, 2) + pow(vetY, 2))) - (diameter_robot / 2); //Calculates the distance that robot need travel to reach the corner]
             // precisa testar
             PRINT_DEV << "vetX: " << vetX << " vetY: " << vetY << " theta: " << theta << " distance: " << distance << PRINTEND_DEV;
 
-
+            std::cout << "position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
             std::cout << "vetX: " << vetX << " vetY: " << vetY << " theta: " << theta << " distance: " << distance << std::endl;
             std::cout << "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y() << ") (" << actualy_room->size_w() / 2 << "," << actualy_room->size_h() / 2 << ")" << std::endl;
             std::cout << "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << std::endl;
@@ -1067,7 +1068,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
     if (effect == 1)
     {
         //go to the wall
-        if (RunRobot(height_room - 0.17))
+        if (RunRobot(width_room - 0.17))
         { //subtrair o diametro pra não haver colisões
             effect = 2;
             if (((m_robot->position().x - diameter_robot) <= x0_room) && ((m_robot->position().y + diameter_robot) >= y1_room))
@@ -1076,17 +1077,17 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
                 DegStep = last_track * 90;
                 effect = 5;
                 walk = 0;
-                deg = 0;
+                deg = 180;
                 cleaned_rooms_[actualy_room] = true;
                 old_room_ = actualy_room;
             }
-            else if ((((m_robot->position().x) - diameter_robot) <= (x0_room)) && (((m_robot->position().y) - diameter_robot) <= y0_room))
+            else if ((((m_robot->position().x) + diameter_robot) >= (x1_room)) && (((m_robot->position().y) + diameter_robot) >= y1_room))
             {
                 PRINT_DEV << "ultima carreira da sala" << PRINTEND_DEV;
                 DegStep = last_track * 90;
                 effect = 5;
                 walk = 0;
-                deg = 180;
+                deg = 0;
                 cleaned_rooms_[actualy_room] = true;
                 old_room_ = actualy_room;
             }
@@ -1273,9 +1274,8 @@ void MarxBotCleaningExperiment::findRoom()
         }
         else
         {
-            if (TurnRobot2(deg))
+            if (TurnRobot2(360-deg))
             {
-                m_robot->wheelsController()->setSpeeds(-5, -5);
                 effect2 = 10;
             }
         }
