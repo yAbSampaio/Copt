@@ -166,6 +166,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	#define PRINTEND_DEV std::endl;}
 	int Turning = False;
 	int Running = False;
+	
 
     int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
