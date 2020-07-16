@@ -1011,8 +1011,8 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
             y1_room = actualy_room->geometry().y() + actualy_room->size_h() / 2;
             width_room = actualy_room->size_w();
             height_room = actualy_room->size_h();
-            vetX = m_robot->position().x - x0_room; // creating the direction vector of way to be covered
-            vetY = m_robot->position().y - y0_room;
+            vetX = m_robot->position().x - (x0_room + diameter_robot/2 ); // creating the direction vector of way to be covered
+            vetY = m_robot->position().y - (y0_room + diameter_robot/2 );
 
             PRINT_DEV << "variaveis da sal: (" << actualy_room->geometry().x() << "," << actualy_room->geometry().y() << ") (" << actualy_room->size_w() / 2 << "," << actualy_room->size_h() / 2 << ")" << PRINTEND_DEV;
             PRINT_DEV << "variaveis da sala: (" << x0_room << "," << y0_room << ") (" << x1_room << "," << y1_room << ")" << PRINTEND_DEV;
@@ -1071,7 +1071,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
         if (RunRobot(width_room - 0.17))
         { //subtrair o diametro pra não haver colisões
             effect = 2;
-            if (((m_robot->position().x - diameter_robot) <= x0_room) && ((m_robot->position().y + diameter_robot) >= y1_room))
+            if (((m_robot->position().x - diameter_robot/1.5) <= x0_room) && ((m_robot->position().y + diameter_robot) >= y1_room))
             {
                 PRINT_DEV << "ultima carreira da sala" << PRINTEND_DEV;
                 DegStep = last_track * 90;
@@ -1190,7 +1190,7 @@ void MarxBotCleaningExperiment::findRoom()
         }
         if (last_track == -1)
         {
-            if (evonet->getInput(0) < NEAR_SENSOR && evonet->getInput(7) < NEAR_SENSOR)
+            if (evonet->getInput(0) < 0.50 && evonet->getInput(7) < 0.50)
             {
                 PRINT_DEV << "corredor lado esquerdo" << PRINTEND_DEV;
                 m_robot->wheelsController()->setSpeeds(-5, -5);
@@ -1200,7 +1200,7 @@ void MarxBotCleaningExperiment::findRoom()
         }
         else
         {
-            if (evonet->getInput(3) < NEAR_SENSOR && evonet->getInput(4) < NEAR_SENSOR)
+            if (evonet->getInput(3) < 0.50 && evonet->getInput(4) < 0.50)
             {
                 PRINT_DEV << "corredor lado direito" << PRINTEND_DEV;
                 m_robot->wheelsController()->setSpeeds(-5, -5);
@@ -1216,6 +1216,7 @@ void MarxBotCleaningExperiment::findRoom()
         PRINT_DEV << "deg-DegStep : " << deg - DegStep << PRINTEND_DEV;
         if (TurnRobot2(deg - DegStep))
         {
+            deg -= DegStep;
             teste = 0;
         }
         if(teste == 0){
@@ -1240,6 +1241,7 @@ void MarxBotCleaningExperiment::findRoom()
                 m_robot->wheelsController()->setSpeeds(10, 10);
             }
             else{
+                //m_robot->wheelsController()->setSpeeds(-5, -5);
                 effect2 = 9;
             
             }
@@ -1253,6 +1255,7 @@ void MarxBotCleaningExperiment::findRoom()
                 m_robot->wheelsController()->setSpeeds(10, 10);
             }
             else{
+                //m_robot->wheelsController()->setSpeeds(-5, -5);
                 effect2 = 9;
             
             }
@@ -1274,9 +1277,18 @@ void MarxBotCleaningExperiment::findRoom()
         }
         else
         {
-            if (TurnRobot2(360-deg))
+            if (TurnRobot2(deg-DegStep))
             {
+                
+                deg -= DegStep;
                 effect2 = 10;
+                if (deg >= 360)
+                {
+                    deg -= 360;
+                }
+                if (deg < 0){
+                    deg += 360;
+                }
             }
         }
     }
