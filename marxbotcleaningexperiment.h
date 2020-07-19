@@ -195,7 +195,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
     float height_room;
 	int teste = 1;
 	// Robots informations
-	float diameter_robot = 0.16;
+	float diameter_robot = 0.15;
 
 // } Functions by Lucas T. G.
 
