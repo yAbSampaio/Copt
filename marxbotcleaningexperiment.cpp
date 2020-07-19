@@ -259,6 +259,17 @@ void MarxBotCleaningExperiment::initIndividual(int individual)
 }
 void MarxBotCleaningExperiment::initTrial(int trial)
 {
+    Turning = False;
+	Running = False;
+	effect = 0; //what the robot need to do on current step
+	PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
+	last_track = -1;//the value of 'last_track' is '-1' for right, and '1' for left
+	deg = 180;
+	DegStep = 90;
+	effect2 = 6;
+	walk = 1;
+	teste = 1;
+    
     m_trial = trial;
     this->trial = trial;
     // destroy arena objects
@@ -703,6 +714,22 @@ void MarxBotCleaningExperiment::placeRobot(int trial)
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
     nattempts = 0;
     farsa::wVector robotP;
+    int i = 0;
+    for (auto room : rooms){
+        i++;
+    }
+    int numrand = (rand()%i); 
+    //rand
+    i = 0;
+    for (auto room : rooms){
+        if (i == numrand)// == rand
+        {
+            root_room = room;
+        }
+        
+        i++;
+    }
+
     do
     {
         x = locRNG.getDouble(root_room->walls()[environment::definitions::Direction::LEFT]->points()[0][0] + 1.6,
@@ -742,11 +769,21 @@ void MarxBotCleaningExperiment::placeRobot(int trial)
     }
     else
     {
-        robot->setPosition(arena->getPlane(), x, y);
-        // robot->setOrientation(arena->getPlane(),
+        //robot->setPosition(arena->getPlane(), x, y);
+        robot->setOrientation(arena->getPlane(),0);
     }
     //                 locRNG.getDouble(-PI_GRECO, PI_GRECO));
-    robot->setPosition(arena->getPlane(), 0, 0);
+    //robot->setPosition(arena->getPlane(), 0, 0);
+    robot->setOrientation(arena->getPlane(), 0);
+    float x0_roomX = root_room->geometry().x() - root_room->size_w() / 2 + 0.17;
+    float y0_roomX = root_room->geometry().y() - root_room->size_h() / 2 + 0.17;
+    float xpos = x0_roomX + ( ((float)rand()/(float)(RAND_MAX)) * (root_room->size_w() -0.17) );
+    float ypos = y0_roomX + ( ((float)rand()/(float)(RAND_MAX)) * (root_room->size_h() -0.17) );
+    std::cout<< "SetPosition: (" << xpos << ", " << ypos << ")" << std::endl;
+    std::cout<< "Point Zero: (" << x0_roomX << ", " << x0_roomX << ")" << std::endl;
+    std::cout<<((float)rand()/(float)(RAND_MAX))<<std::endl;
+
+    robot->setPosition(arena->getPlane(), xpos, ypos);
     robot->setOrientation(arena->getPlane(), 0);
 }
 void MarxBotCleaningExperiment::createRooms()
@@ -995,7 +1032,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
     int v = 1; // the variable 'v' represents the percent of velocity will be used, need to stay in range [0,1]
     //int last_track = -1 ;//the value of 'last_track' is '-1' for right, and '1' for left
     
-    
+    std::cout<<"Effect1 "<<effect<<" Effect2 "<<effect2<<std::endl;
     PRINT_DEV << " Orientation: " << getAngle() << PRINTEND_DEV;
 
     //go find some corner, and go to the corner
@@ -1071,7 +1108,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
         if (RunRobot(width_room - 0.17))
         { //subtrair o diametro pra não haver colisões
             effect = 2;
-            if (((m_robot->position().x - diameter_robot/1.5) <= x0_room) && ((m_robot->position().y + diameter_robot) >= y1_room))
+            if (((m_robot->position().x - diameter_robot) <= x0_room) && ((m_robot->position().y + diameter_robot) >= y1_room))
             {
                 PRINT_DEV << "ultima carreira da sala" << PRINTEND_DEV;
                 DegStep = last_track * 90;
