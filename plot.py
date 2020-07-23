@@ -34,10 +34,20 @@ for mod,folder in enumerate(Dire):
                 fit_byRoom[room-3].append(total_Trial[i])
                 
             for w in range(len(fit_byRoom)):
-                fit_byRoom[w] = pd.DataFrame(fit_byRoom[w])
+                fit_byRoom[w] = pd.DataFrame(fit_byRoom[w],columns=['fit'])
+            
+            room3 = fit_byRoom[0]['fit']
+            room4 = fit_byRoom[1]['fit']
+            room5 = fit_byRoom[2]['fit']
             
             for j in range(len(fit_byRoom)):
-                stati_Data.append(fit_byRoom[j].describe())
+                if j == 0:
+                    stati_Data.append(room3.describe())
+                elif j == 1:
+                    stati_Data.append(room4.describe())
+                elif j == 2:
+                    stati_Data.append(room5.describe())
+
                 vec_quartis1.append("{0:.2f}".format(stati_Data[j]['25%']))
                 vec_quartis2.append("{0:.2f}".format(stati_Data[j]['75%']))
                 vec_med.append("{0:.2f}".format(stati_Data[j]['50%']))
@@ -46,7 +56,7 @@ for mod,folder in enumerate(Dire):
             font_1 = {'family': 'serif', 'color': '#5C1BCC', 'size':'14'}
             
             plt.figure(figsize=(25, 15))
-            plt.boxplot([fit_byRoom[0],fit_byRoom[1],fit_byRoom[2]])
+            plt.boxplot([room3,room4,room5])
             plt.xticks([1,2,3], [3,4,5])
             plt.title('Boxplot Fitness - Modo {} - {} Steps'.format(mode[mod],steps_i))
             plt.ylabel('% de Limpeza')
