@@ -155,13 +155,27 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual void CleamRoomHardMode();
 
+	virtual void Cleaning();
+
+	virtual int RunRobotW3(int front = 0, int right = 0, int back = 0, int left = 0);
+
+	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
+
+	virtual int TurnRobot3(int front = 0, int right = 0, int back = 0, int left = 0); //turn the robot until just the asked sensors stay activated
+
+	virtual int frontSensor();
+	virtual int rightSensor();
+	virtual int backSensor();
+	virtual int leftSensor();
+
 	#define True 1
 	#define False 0
-	#define NEAR_SENSOR 0.60
+	#define NEAR_SENSOR 0.70
 	#define FAR_SENSOR 0.15
 	#define FAKE_ZERO 5.10352e-04
+	#define FAKE_ZERO_2 0.1
 	#define PI_3_2_RAD 4.71239 //is 3/2pi in rad or 270 degrees
-	#define DEV_MOD 0
+	#define DEV_MOD 1
 	#define PRINT_DEV if(DEV_MOD){std::cout
 	#define PRINTEND_DEV std::endl;}
 	int Turning = False;
