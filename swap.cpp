@@ -45,6 +45,8 @@ void MarxBotCleaningExperiment::Cleaning(){
             if (RunRobotW3(1, 1, 0, 0)){
                 if (last_Walk == 1){
                     effect = 5;
+                    cleanRoom ++;
+                    last_Walk = 0;
                 }
                 else{
                     effect = 2;
@@ -141,7 +143,99 @@ void MarxBotCleaningExperiment::Cleaning(){
         }
     }// /
     else if (effect == 5){
+        if ( cleanRoom > 2 ){
+            cleanRoom = 2;
+        }
         demandRoom();
     }
     
 }//
+
+void MarxBotCleaningExperiment::demandRoom(){
+    farsa::ResourcesLocker locker(this);
+    farsa::RobotOnPlane *robot =
+        getResource<farsa::RobotOnPlane>("agent[0]:robot");
+    farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
+    farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
+
+
+    if (effect2 == 5){
+        if ( TurnRobot3(0,1,1,0) ){
+            effect2 = 6;
+        }
+    }
+    else if (effect2 == 6){
+        Clock = evonet->getInput(8);
+        PRINT_DEV << "Clock Fe 6 : " << Clock << PRINTEND_DEV;
+        if ( RunRobotF3(1,1,0,0) ){//evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
+            // PRINT_DEV << "Parede frente" << PRINTEND_DEV;
+            deg += DegStep;
+            // m_robot->wheelsController()->setSpeeds(-2.5, -2.5);
+            effect2 = 5;
+        }
+        if (evonet->getInput(3) < 0.40 && evonet->getInput(4) < 0.40){
+            PRINT_DEV << "corredor lado direito" << PRINTEND_DEV;
+            //m_robot->wheelsController()->setSpeeds(-5, -5);
+            effect2 = 7;
+        }
+    }
+
+    else if (effect2 == 7){//  Trocar logica posteriamente rodar no eixo 90 graus e andar reto andar achar o corredor
+        PRINT_DEV << "Clock Fe 7 : " << Clock << PRINTEND_DEV;
+        PRINT_DEV << "deg-DegStep : " << deg - DegStep << PRINTEND_DEV;
+        if (TurnRobot2(deg - DegStep)){
+            deg -= DegStep;
+            teste = 0;
+        }
+        if(teste == 0){
+            if (RunRobot(diameter_robot)){
+                m_robot->wheelsController()->setSpeeds(10, 10);
+                effect2 = 8;
+            }
+        }
+    }
+
+    else if (effect2 == 8){
+        teste = 1;
+        PRINT_DEV << "Clock Fe 8 : " << Clock << PRINTEND_DEV;
+        
+        PRINT_DEV << "3 :" <<evonet->getInput(3) << " 4: "<<evonet->getInput(4) << PRINTEND_DEV;
+        if (evonet->getInput(3) < 0.40 && evonet->getInput(4) < 0.40){
+            hallPass += 1; 
+            effect2 = 9;
+        }
+
+    }
+    else if (effect2 == 9){
+        PRINT_DEV << "Clock Fe 9 : " << Clock << PRINTEND_DEV;
+        if ( cleanRoom == hallPass ){
+            effect = 0;
+            effect2 = 5;
+            hallPass = 0;
+            // nova sala voltar a effect 0
+            // talvez mandar ele andar ou rodar
+        }
+        else{       // deixar assim pois curva aki eh sem canto e como quero testar o resto essa parte faz sentido deixar assim
+            if (TurnRobot2(deg-DegStep))
+            {
+                
+                deg -= DegStep;
+                effect2 = 10;
+                if (deg >= 360)
+                {
+                    deg -= 360;
+                }
+                if (deg < 0){
+                    deg += 360;
+                }
+            }
+        }
+    }
+    else if (effect2 == 10){
+        if (RunRobot(diameter_robot)){
+            m_robot->wheelsController()->setSpeeds(10, 10);
+            effect2 = 6;
+        }
+    }
+    
+}
