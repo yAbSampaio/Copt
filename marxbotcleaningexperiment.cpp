@@ -404,48 +404,42 @@ void MarxBotCleaningExperiment::initStep(int step)
     if (m_additionalInputs->size() >= 1)
     {
         farsa::real *clock = &(*m_additionalInputs)[0];
-        *clock += 1;
-        // PRINT_DEV<<"clock: "<<*clock<< PRINTEND_DEV;
-        //     if (old_room_ != actualy_room) {
-        //         if (!cleaned_rooms_[actualy_room]) {
-        //             fk_a_ = step;
-        //             fk_b_ = step + fk_steps_raise_;
-        //             clock_up_ = true;
-        //             cleaned_rooms_[actualy_room] = true;
-        //         }
-        //     }
+        // *clock += 1;
+        PRINT_DEV<<"clock: "<<*clock<< PRINTEND_DEV;
+        if (old_room_ != actualy_room) {
+            if (!cleaned_rooms_[actualy_room]) {
+                fk_a_ = step;
+                fk_b_ = step + fk_steps_raise_;
+                clock_up_ = true;
+                cleaned_rooms_[actualy_room] = true;
+            }
+        }
 
-        //     double t = static_cast<double>(step - fk_a_)/static_cast<double>(fk_b_ - fk_a_);
-        //     if (step <= fk_b_) {
-        //         if (clock_up_) {
-        //             if (fk_raise_function_ == "exponential") {
-        //                 // *clock = pow(2, t) - 1;
-        //                 *clock++;
-        //             } else if (fk_raise_function_ == "linear") {
-        //                 // *clock = t;
-        //                 *clock++;
-        //             } else {
-        //                 // *clock = 1;
-        //                 *clock++;
-        //             }
-        //         } else {
-        //             if (fk_fall_function_ == "exponential") {
-        //                 // *clock = pow(0.15, t);
-        //                 *clock++;
-        //             } else {
-        //                 // *clock = -t + 1;
-        //                 *clock++;
-        //             }
-        //         }
-        //     } else {
-        //         // *clock = 0.5;
-        //         *clock++;
-        //     }
-        //     // if (*clock >= 0.99 && clock_up_) {
-        //     //     fk_a_ = step;
-        //     //     fk_b_ = step+ fk_steps_fall_;
-        //     //     clock_up_ = false;
-        //     // }
+        double t = static_cast<double>(step - fk_a_)/static_cast<double>(fk_b_ - fk_a_);
+        if (step <= fk_b_) {
+            if (clock_up_) {
+                if (fk_raise_function_ == "exponential") {
+                    *clock = pow(2, t) - 1;
+                } else if (fk_raise_function_ == "linear") {
+                    *clock = t;
+                } else {
+                    *clock = 1;
+                }
+            } else {
+                if (fk_fall_function_ == "exponential") {
+                    *clock = pow(0.15, t);
+                } else {
+                    *clock = -t + 1;
+                }
+            }
+        } else {
+            *clock = 0.5;
+        }
+        if (*clock >= 0.99 && clock_up_) {
+            fk_a_ = step;
+            fk_b_ = step+ fk_steps_fall_;
+            clock_up_ = false;
+        }
     }
 
     // when there is a hidden neuron that modulates the behaviour
@@ -470,8 +464,6 @@ void MarxBotCleaningExperiment::initStep(int step)
         }
     }
     old_room_ = actualy_room;
-
-    // m_robot->wheelsController()->setSpeeds(10,9);
 }
 void MarxBotCleaningExperiment::afterSensorsUpdate() {}
 void MarxBotCleaningExperiment::beforeMotorsUpdate() {}
@@ -775,7 +767,7 @@ void MarxBotCleaningExperiment::placeRobot(int trial)
     }
     //                 locRNG.getDouble(-PI_GRECO, PI_GRECO));
     //robot->setPosition(arena->getPlane(), 0, 0);
-    // robot->setOrientation(arena->getPlane(), 0);
+    //robot->setOrientation(arena->getPlane(), 0);
 
     float x0_roomX = root_room->geometry().x() - root_room->size_w() / 2 + 0.17;
     float y0_roomX = root_room->geometry().y() - root_room->size_h() / 2 + 0.17;
@@ -785,7 +777,8 @@ void MarxBotCleaningExperiment::placeRobot(int trial)
     // std::cout<< "Point Zero: (" << x0_roomX << ", " << x0_roomX << ")" << std::endl;
     // std::cout<<((float)rand()/(float)(RAND_MAX))<<std::endl;
 
-    robot->setPosition(arena->getPlane(), xpos, ypos);
+    // robot->setPosition(arena->getPlane(), xpos, ypos);
+    robot->setPosition(arena->getPlane(), -1, 1);
     robot->setOrientation(arena->getPlane(), 0);
 }
 void MarxBotCleaningExperiment::createRooms()
@@ -797,7 +790,7 @@ void MarxBotCleaningExperiment::createRooms()
     double mean = static_cast<double>(rd.max() - rd.min()) / 2;
     const float min_w = 3;
     const float min_h = 3;
-    const float door_size = 0.4;
+    const float door_size = 0.25;
     const float min_dist_between_rooms = 1;
     const bool top_r = rd() > mean;
     const bool bottom_r = rd() > mean;
@@ -1090,14 +1083,14 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
 
         if (PositionInTheCorner == 3)
         {
-            std::cout << "corner 3 fora position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
+            // std::cout << "corner 3 fora position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
             if (TurnRobot3(0, 0, 1, 1) )
             { // Turn the robot to the right
                 PositionInTheCorner = 0;
                 effect = 1;
                 //std::cout<< "Orientation: " << getAngle() << std::endl;
                 //last_track = -1;
-                std::cout << "corner 3 position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
+                // std::cout << "corner 3 position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
             }
         }
     }
@@ -1176,7 +1169,7 @@ void MarxBotCleaningExperiment::CleamRoomHardMode()
     }
     else if (effect == 5)
     {
-        findRoom();
+        // findRoom();
     }
 }
 
@@ -1269,57 +1262,40 @@ void MarxBotCleaningExperiment::findRoom()
         }
     }
 
-    else if (effect2 == 8)
-    {
+    else if (effect2 == 8){
         teste = 1;
         PRINT_DEV << "Clock Fe 8 : " << Clock << PRINTEND_DEV;
         
-        if (last_track == -1)
-        {
+        if (last_track == -1){
             PRINT_DEV << "3 :" <<evonet->getInput(0) << " 4: "<<evonet->getInput(7) << PRINTEND_DEV;
             if (evonet->getInput(0) > FAR_SENSOR && evonet->getInput(7) > FAR_SENSOR){
                 m_robot->wheelsController()->setSpeeds(10, 10);
-            }
-            else{
+            }else{
                 //m_robot->wheelsController()->setSpeeds(-5, -5);
                 effect2 = 9;
-            
             }
-            
-        }
-        else
-        {
+        }else{
             PRINT_DEV << "3 :" <<evonet->getInput(3) << " 4: "<<evonet->getInput(4) << PRINTEND_DEV;
-            if (evonet->getInput(3) > FAR_SENSOR && evonet->getInput(4) > FAR_SENSOR)
-            {
+            if (evonet->getInput(3) > FAR_SENSOR && evonet->getInput(4) > FAR_SENSOR){
                 m_robot->wheelsController()->setSpeeds(10, 10);
-            }
-            else{
+            }else{
                 //m_robot->wheelsController()->setSpeeds(-5, -5);
                 effect2 = 9;
             
             }
         }
 
-    }
-    else if (effect2 == 9)
-    {
+    }else if (effect2 == 9){
         PRINT_DEV << "Clock Fe 9 : " << Clock << PRINTEND_DEV;
-        if (!cleaned_rooms_[actualy_room])
-        {
-            if (RunRobot(diameter_robot * 5))
-            {
+        if (!cleaned_rooms_[actualy_room]){
+            if (RunRobot(diameter_robot * 5)){
                 effect = 0;
                 last_track = -1;
                 walk = 1;
                 effect2 = 6;
             }
-        }
-        else
-        {
-            if (TurnRobot2(deg-DegStep))
-            {
-                
+        }else{
+            if (TurnRobot2(deg-DegStep)){
                 deg -= DegStep;
                 effect2 = 10;
                 if (deg >= 360)
@@ -1331,9 +1307,7 @@ void MarxBotCleaningExperiment::findRoom()
                 }
             }
         }
-    }
-    else if (effect2 == 10)
-    {
+    }else if (effect2 == 10){
         if (RunRobot(diameter_robot)){
             m_robot->wheelsController()->setSpeeds(10, 10);
             effect2 = 6;
@@ -1352,7 +1326,7 @@ void MarxBotCleaningExperiment::Cleaning(){
     {
         if (PositionInTheCorner == 0)
         {
-            if ( RunRobotW3(0, 0, 0, 0) )
+            if ( RunRobotF3(0, 0, 0, 0) )
             {
                 std::cout << "corner 0 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
                 PositionInTheCorner = 1;
@@ -1361,27 +1335,28 @@ void MarxBotCleaningExperiment::Cleaning(){
 
         if (PositionInTheCorner == 1)
         {
-            if ( TurnRobot3(0, 1, 0, 0) ) 
+            if ( TurnRobotJ3('l') ) 
             {
-            std::cout << "corner 1 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
+                std::cout << "corner 1 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
                 PositionInTheCorner = 2;
             }
         }
 
         if (PositionInTheCorner == 2)
         {
-            PRINT_DEV << "corner 2 Clock: " << evonet->getInput(8) << " position:("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << "sensors " << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << PRINTEND_DEV;
+            // PRINT_DEV << "corner 2 Clock: " << evonet->getInput(8) << " position:("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << "sensors " << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << PRINTEND_DEV;
             // PRINT_DEV << "sensors back: " << evonet->getInput(1) << " - " << evonet->getInput(1) << PRINTEND_DEV;
-            if ( RunRobotF3(1, 1, 0, 0) )
+            if ( RunRobotF3(0, 0, 0, 1) )
             {
                 std::cout << "corner dentro 2 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
                 PositionInTheCorner = 3;
             }
+            // RunRobotF3(0, 0, 0, 1);
         }
 
         if (PositionInTheCorner == 3)
         {
-            // std::cout << "corner 3 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
+            // std::cout << "corner 3 fora Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
             if ( TurnRobot3(0, 1, 1, 0) )
             {
                 PositionInTheCorner = 0;
@@ -1391,6 +1366,208 @@ void MarxBotCleaningExperiment::Cleaning(){
         }
     }
     // NOW THE ROBOT IS POSITIONED
+
+    else if(effect == 1 ){
+        if( RunRobotF3(0,0,0,0) ){
+            effect = 4;
+        }
+    }else if( effect == 2 ){
+        if( last_track == -1 ){
+            if( TurnRobotJ3('r') ){
+                effect = 3;
+            }
+        }else{
+            if( TurnRobotJ3('l') ){
+                effect = 3;
+            }
+        }
+    }else if( effect == 3 ){
+        // if( RunRobot(diameter_robot) ){
+        //     effect = 4;
+        // }
+        PRINT_DEV << "effect 3 " << PRINTEND_DEV;
+        m_robot->wheelsController()->setSpeeds(10, 10);
+        effect = 4;
+        
+    }else if( effect == 4 ){
+        if( TurnRobotJ3('b') ){
+            effect = 1;
+            last_track *= -1;
+        }
+    }
+
+    // else if ( effect == 1 ){
+    //     // if ( rightSensor() == 1){    
+    //     //     if (RunRobotF3(1, 1, 0, 0)){
+    //     //         // if (last_Walk == 1){
+    //     //         //     effect = 5;
+    //     //         //     cleanRoom ++;
+    //     //         //     last_Walk = 0;
+    //     //         // }else{
+    //     //         //     effect = 2;
+    //     //         //     last_Walk += 1;
+    //     //         // }
+    //     //         effect = 2;
+    //     //     }
+    //     // }else if ( leftSensor() == 1 ){
+    //     //     if (RunRobotF3(1, 0, 0, 1)){
+    //     //         effect = 2;
+    //     //     }
+    //     // }else{
+    //     if (RunRobotF3(0, 0, 0, 0)){
+    //         effect = 2;
+    //     }
+    //     // }
+    // }else if( effect == 2 ){
+    //     if (last_track == 1){
+    //         if ( rightSensor() == 1 ){//Teoricamente nao deveria entrar aki pois deveria entrar no effect 5 porem pra previnir eu fiz
+    //             if ( TurnRobot3(0,1,0,1)){
+    //                 effect = 3;
+    //             } 
+    //         }else{
+    //             if( TurnRobot3(0, 0, 0, 1) ){
+    //                 effect = 3;
+    //             }
+    //         }
+    //     }else{
+    //         // if ( rightSensor() == 1 ){
+    //         //     if ( TurnRobot3(0,1,1,0)){
+    //         //         effect = 3;
+    //         //     }
+                
+    //         // }else 
+    //         if ( leftSensor() == 1 ){
+    //             if ( TurnRobot3(0,1,1,0) ){
+    //                 effect = 3;
+    //             }
+                
+    //         }else{
+    //             if( TurnRobot3(0, 1, 0, 0) ){
+    //                 effect = 3;
+    //             }
+    //         }
+    //     }
+        
+    // }else if( effect == 3 ){
+    //      if (RunRobot(diameter_robot)){
+    //          effect = 4;
+    //      }
+         
+    // }else if ( effect == 4 ){
+    //     if (last_track == 1){
+    //         if ( frontSensor() == 1 ){//Teoricamente nao deveria entrar aki pois deveria entrar no effect 5 porem pra previnir eu fiz
+    //             if ( TurnRobot3(0,0,1,1)){
+    //                 effect = 1;
+    //             }
+    //         }else{
+    //             if( TurnRobot3(0, 0, 1, 0) ){
+    //                 effect = 1;
+    //             }
+    //         }
+    //         last_track = -1;
+    //     }else{
+    //         if ( frontSensor() == 1 ){
+    //             if ( TurnRobot3(0,1,1,0)){
+    //                 effect = 3;
+    //             }
+    //         }else{
+    //             if( TurnRobot3(0, 0, 1, 0) ){
+    //                 effect = 1;
+    //             }
+    //         }
+    //     }
+    // }else if (effect == 5){
+    //     if ( cleanRoom > 2 ){
+    //         cleanRoom = 2;
+    //     }
+    //     // demandRoom();
+    // }
+}
+void MarxBotCleaningExperiment::demandRoom(){
+    farsa::ResourcesLocker locker(this);
+    farsa::RobotOnPlane *robot =
+        getResource<farsa::RobotOnPlane>("agent[0]:robot");
+    farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
+    farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
+
+    if (effect2 == 5){
+        if ( TurnRobot3(0,1,1,0) ){
+            effect2 = 6;
+        }
+    }
+    else if (effect2 == 6){
+        Clock = evonet->getInput(8);
+        PRINT_DEV << "Clock Fe 6 : " << Clock << PRINTEND_DEV;
+        if ( RunRobotF3(1,1,0,0) ){//evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR){
+            // PRINT_DEV << "Parede frente" << PRINTEND_DEV;
+            deg += DegStep;
+            // m_robot->wheelsController()->setSpeeds(-2.5, -2.5);
+            effect2 = 5;
+        }
+        if (evonet->getInput(3) < 0.40 && evonet->getInput(4) < 0.40){
+            PRINT_DEV << "corredor lado direito" << PRINTEND_DEV;
+            //m_robot->wheelsController()->setSpeeds(-5, -5);
+            effect2 = 7;
+        }
+    }
+
+    else if (effect2 == 7){//  Trocar logica posteriamente rodar no eixo 90 graus e andar reto andar achar o corredor
+        PRINT_DEV << "Clock Fe 7 : " << Clock << PRINTEND_DEV;
+        PRINT_DEV << "deg-DegStep : " << deg - DegStep << PRINTEND_DEV;
+        if (TurnRobot2(deg - DegStep)){
+            deg -= DegStep;
+            teste = 0;
+        }
+        if(teste == 0){
+            if (RunRobot(diameter_robot)){
+                m_robot->wheelsController()->setSpeeds(10, 10);
+                effect2 = 8;
+            }
+        }
+    }
+
+    else if (effect2 == 8){
+        teste = 1;
+        PRINT_DEV << "Clock Fe 8 : " << Clock << PRINTEND_DEV;
+        m_robot->wheelsController()->setSpeeds(10, 10);
+        PRINT_DEV << "3 :" <<evonet->getInput(3) << " 4: "<<evonet->getInput(4) << PRINTEND_DEV;
+        if (evonet->getInput(3) < 0.40 && evonet->getInput(4) < 0.40){
+            hallPass += 1; 
+            effect2 = 9;
+        }
+
+    }
+    else if (effect2 == 9){
+        PRINT_DEV << "Clock Fe 9 : " << Clock << PRINTEND_DEV;
+        if ( cleanRoom == hallPass ){
+            effect = 0;
+            effect2 = 5;
+            hallPass = 0;
+            // nova sala voltar a effect 0
+            // talvez mandar ele andar ou rodar
+        }
+        else{       // deixar assim pois curva aki eh sem canto e como quero testar o resto essa parte faz sentido deixar assim
+            if (TurnRobot2(deg-DegStep))
+            {
+                
+                deg -= DegStep;
+                effect2 = 10;
+                if (deg >= 360)
+                {
+                    deg -= 360;
+                }
+                if (deg < 0){
+                    deg += 360;
+                }
+            }
+        }
+    }
+    else if (effect2 == 10){
+        if (RunRobot(diameter_robot)){
+            m_robot->wheelsController()->setSpeeds(10, 10);
+            effect2 = 6;
+        }
+    }
 }
 
 int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int left){ //turn the robot until just the asked sensors stay activated
@@ -1402,33 +1579,68 @@ int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int le
     // if( ( front && frontSensor() ) ||  ( right && rightSensor() ) || ( back && backSensor() ) || ( left && leftSensor() ) ){
     // if( (front && front == frontSensor() ) ||  ( right && right == rightSensor() ) || (back && back == backSensor() ) || (left && left == leftSensor() ) ){
     // if( ( ( front == frontSensor() ) &&  ( right == rightSensor() ) && ( back == backSensor() ) && ( left == leftSensor() ) ) || frontSensor() ){
-    if( frontSensor() ){
-        std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
-        m_robot->wheelsController()->setSpeeds(-0.1, -0.1);
+    if ( (rightSensor() > NEAR_SENSOR && leftSensor() > NEAR_SENSOR)  ){
+        // m_robot->wheelsController()->setSpeeds(10, 10);
+        std::cout<< "RRF3 Corredor" << std::endl << std::endl << std::endl << std::endl << std::endl;
+        return False;
+    }//else
+    if( frontSensor() || ( evonet->getInput(5) > NEAR_SENSOR && evonet->getInput(6) > NEAR_SENSOR ) ){
+        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
+        m_robot->wheelsController()->setSpeeds(0.1, 0.1);
         return True;
-    }else
-    {
+    }else{
         if(right == 1){
             // float v1 = (6+log2(evonet->getInput(3)))/6;
             // float v2 = (6+log2(evonet->getInput(4)))/6;
             float v1 = evonet->getInput(3);
             float v2 = evonet->getInput(4);
-            if( (evonet->getInput(3) + evonet->getInput(4) )/2 < NEAR_SENSOR ){
+            if( (v1 + v2 )/2 < NEAR_SENSOR ){
                 PRINT_DEV << "FAR" << PRINTEND_DEV;
                 v2 *= 0.7;
+            }else if ( (v1 + v2) > NEAR_SENSOR ){
+                PRINT_DEV << "NEAR" << PRINTEND_DEV;
+                v1 *= 0.9;
             }
             PRINT_DEV << " r " << v1 << ", " << v2 << PRINTEND_DEV;
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
+            return False;
         }else if (left == 1){
             float v1 = evonet->getInput(7);
             float v2 = evonet->getInput(0);
-            if( (evonet->getInput(7) + evonet->getInput(0) )/2 < NEAR_SENSOR ){
+            if( (v1 + v2 )/2 < NEAR_SENSOR ){
                 PRINT_DEV << "FAR" << PRINTEND_DEV;
                 v1 *= 0.7;
             }
-            PRINT_DEV << " r " << v1 << ", " << v2 << PRINTEND_DEV;
+            else if( (v1 + v2 )/2 > NEAR_SENSOR){
+                PRINT_DEV << "NEAR" << PRINTEND_DEV;
+                v2 *= 0.9;
+            }
+            PRINT_DEV << " l " << v1 << ", " << v2 << PRINTEND_DEV;
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
+            return False;
         }else{
+            if( rightSensor() ){
+                float v1 = evonet->getInput(3);
+                float v2 = evonet->getInput(4);
+                if( (v1 + v2 )/2 > NEAR_SENSOR){
+                    v1 *= 0.8;
+                }
+                PRINT_DEV << " r2 " << v1 << ", " << v2 << PRINTEND_DEV;
+                m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
+                return False;
+            }else if ( leftSensor() ){
+                float v1 = evonet->getInput(7);
+                float v2 = evonet->getInput(0);
+                if( (v1 + v2 )/2 > NEAR_SENSOR){
+                    v2 *= 0.8;
+                }
+                PRINT_DEV << " l2 " << v1 << ", " << v2 << PRINTEND_DEV;
+                m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
+                return False;
+            }else{
+                m_robot->wheelsController()->setSpeeds(10, 10);
+                return False;
+            }
             m_robot->wheelsController()->setSpeeds(10, 10);
         }
         return False;
@@ -1443,34 +1655,34 @@ int MarxBotCleaningExperiment::RunRobotW3(int front, int right, int back, int le
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
     // if( ( front && frontSensor() ) ||  ( right && rightSensor() ) || ( back && backSensor() ) || ( left && leftSensor() ) ){
     // if( (front && front == frontSensor() ) ||  ( right && right == rightSensor() ) || (back && back == backSensor() ) || (left && left == leftSensor() ) ){
-    if( ( ( front == frontSensor() ) &&  ( right == rightSensor() ) && ( back == backSensor() ) && ( left == leftSensor() ) ) && !frontSensor() ){
-        if(right == 1){
-            // float v1 = (6+log2(evonet->getInput(3)))/6;
-            // float v2 = (6+log2(evonet->getInput(4)))/6;
+    if (rightSensor() > NEAR_SENSOR && leftSensor() > NEAR_SENSOR){
+        std::cout<< "RRW3 Corredor" << std::endl;
+        m_robot->wheelsController()->setSpeeds(-10, -10);
+        return False;
+    }else if( ( ( front == frontSensor() ) &&  ( right == rightSensor() ) && ( back == backSensor() ) && ( left == leftSensor() ) ) && !frontSensor() ){
+        if( rightSensor() ){
             float v1 = evonet->getInput(3);
             float v2 = evonet->getInput(4);
-            if( (evonet->getInput(3) + evonet->getInput(4) )/2 < NEAR_SENSOR ){
-                PRINT_DEV << "FAR" << PRINTEND_DEV;
-                v2 *= 0.7;
+            if( (evonet->getInput(3) + evonet->getInput(4) )/2 > NEAR_SENSOR){
+                v1 *= 0.8;
             }
             PRINT_DEV << " r " << v1 << ", " << v2 << PRINTEND_DEV;
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
-        }else if (left == 1){
+        }else if ( leftSensor() ){
             float v1 = evonet->getInput(7);
             float v2 = evonet->getInput(0);
-            if( (evonet->getInput(7) + evonet->getInput(0) )/2 < NEAR_SENSOR ){
-                PRINT_DEV << "FAR" << PRINTEND_DEV;
-                v2 *= 0.7;
+            if( (evonet->getInput(7) + evonet->getInput(0) )/2 > NEAR_SENSOR){
+                v2 *= 0.8;
             }
             PRINT_DEV << " r " << v1 << ", " << v2 << PRINTEND_DEV;
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
         }else{
             m_robot->wheelsController()->setSpeeds(10, 10);
+            return False;
         }
-        return False;
     }else
     {
-        std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
+        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
         m_robot->wheelsController()->setSpeeds(0.1, 0.1);
         return True;
     }
@@ -1483,7 +1695,24 @@ int MarxBotCleaningExperiment::TurnRobot3(int front, int right, int back, int le
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
     if( front == frontSensor() &&  right == rightSensor() && back == backSensor() && left == leftSensor() ){
-        std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
+        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
+        m_robot->wheelsController()->setSpeeds(1, 1);
+        return True;
+    }else
+    {
+        m_robot->wheelsController()->setSpeeds(1*last_track, -1*last_track);
+        return False;
+    }
+}
+
+int MarxBotCleaningExperiment::TurnRobotJ3(char side){ //turn the robot until just the asked sensors stay activated
+    farsa::ResourcesLocker locker(this);
+    farsa::RobotOnPlane *robot =
+        getResource<farsa::RobotOnPlane>("agent[0]:robot");
+    farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
+    farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
+    if( (side == 'f' && frontSensor()) ||  (side == 'r' && rightSensor()) || (side == 'b' && backSensor()) || (side == 'l' && leftSensor()) ){
+        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
         m_robot->wheelsController()->setSpeeds(1, 1);
         return True;
     }else
@@ -1529,5 +1758,5 @@ int  MarxBotCleaningExperiment::leftSensor(){
         return False;
     }
 }
- 
+
 // } Functions by Lucas T. G.
