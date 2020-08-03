@@ -163,6 +163,8 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
 
+	virtual int RunRobot3();
+
 	virtual int TurnRobot3(int front = 0, int right = 0, int back = 0, int left = 0); //turn the robot until just the asked sensors stay activated
 
 	virtual int TurnRobotJ3(char side);
