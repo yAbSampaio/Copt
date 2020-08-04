@@ -1320,17 +1320,17 @@ void MarxBotCleaningExperiment::Cleaning(){
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
-    printf("sensors: ");
-    for( int i=0; i<8; i++){
-        printf("%10f-", evonet->getInput(i));
-    }
-    printf("\n");
+    // printf("sensors: ");
+    // for( int i=0; i<8; i++){
+    //     printf("%10f-", evonet->getInput(i));
+    // }
+    // printf("\n");
     //go find some corner, and go to the corner
     if (effect == 0)
     {
         if (PositionInTheCorner == 0)
         {
-            if ( RunRobotF3(0, 0, 0, 0) )
+            if ( RunRobotF3(0,0,0,0) )
             {
                 std::cout << "corner 0 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
                 PositionInTheCorner = 1;
@@ -1586,7 +1586,7 @@ int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int le
         // m_robot->wheelsController()->setSpeeds(10, 10);
         printf("corredor\n");
         std::cout<< "RRF3 Corredor" << std::endl << std::endl << std::endl << std::endl << std::endl;
-        return False;
+        return True;
     }//else
     if( evonet->getInput(5) > NEAR_SENSOR || evonet->getInput(6) > NEAR_SENSOR ){
         // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
@@ -1651,9 +1651,7 @@ int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int le
                 m_robot->wheelsController()->setSpeeds(10, 10);
                 return False;
             }
-            m_robot->wheelsController()->setSpeeds(10, 10);
         }
-        return False;
     }
 }
 int MarxBotCleaningExperiment::RunRobot3(){ //turn the robot until just the asked sensors stay activated
@@ -1662,11 +1660,12 @@ int MarxBotCleaningExperiment::RunRobot3(){ //turn the robot until just the aske
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
-    if ( rightSensor() && leftSensor() ){
-        std::cout<< "RR3 Corredor" << std::endl;
-        m_robot->wheelsController()->setSpeeds(-10, -10);
-        return False;
-    }else if( frontSensor() ){
+    // if ( rightSensor() && leftSensor() ){
+    //     std::cout<< "RR3 Corredor" << std::endl;
+    //     m_robot->wheelsController()->setSpeeds(-10, -10);
+    //     return False;
+    // }else 
+    if( evonet->getInput(5) > NEAR_SENSOR || evonet->getInput(6) > NEAR_SENSOR ){
         m_robot->wheelsController()->setSpeeds(-1, -1);
         return True;
     }else{
@@ -1706,8 +1705,8 @@ int MarxBotCleaningExperiment::RunRobotW3(int front, int right, int back, int le
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
         }else{
             m_robot->wheelsController()->setSpeeds(10, 10);
-            return False;
         }
+        return False;
     }else
     {
         // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
@@ -1766,59 +1765,66 @@ int MarxBotCleaningExperiment::TurnRobotJ3(char side){ //turn the robot until ju
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
-    float c=0, c1=0, c2=0;
+    float c=0, c1=0, c2=0, c3=0, c4=0;
     float v1 = 1, v2 = 1;
     float s1, s2;
     if(side == 'l'){
-        s1 = evonet->getInput(0);
-        s2 = evonet->getInput(7);
-        c1 = evonet->getInput(1)+evonet->getInput(2);
-        c2 = evonet->getInput(5)+evonet->getInput(8);
+        s1 = evonet->getInput(7);
+        s2 = evonet->getInput(0);
+
+        c1 = evonet->getInput(1);
+        c2 = evonet->getInput(2);
+        c3 = evonet->getInput(5);
+        c4 = evonet->getInput(6);
     }else if(side == 'r'){
         s1 = evonet->getInput(3);
         s2 = evonet->getInput(4);
-        c1 = evonet->getInput(5)+evonet->getInput(6);
-        c2 = evonet->getInput(1)+evonet->getInput(2);
+
+        c1 = evonet->getInput(5);
+        c2 = evonet->getInput(6);
+        c3 = evonet->getInput(1);
+        c4 = evonet->getInput(2);
     }else if(side == 'b'){
         s1 = evonet->getInput(1);
         s2 = evonet->getInput(2);
-        c1 = evonet->getInput(3)+evonet->getInput(4);
-        c2 = evonet->getInput(0)+evonet->getInput(7);
+
+        c1 = evonet->getInput(3);
+        c2 = evonet->getInput(4);
+        c3 = evonet->getInput(7);
+        c4 = evonet->getInput(0);
     }else if(side == 'f'){
         s1 = evonet->getInput(5);
         s2 = evonet->getInput(6);
-        c1 = evonet->getInput(7)+evonet->getInput(0);
-        c2 = evonet->getInput(3)+evonet->getInput(4);
+        
+        c1 = evonet->getInput(7);
+        c2 = evonet->getInput(0);
+        c3 = evonet->getInput(3);
+        c4 = evonet->getInput(4);
     }
 
-
-    if( ((side == 'f' && frontSensor()) ||  (side == 'r' && rightSensor()) || (side == 'b' && backSensor()) || (side == 'l' && leftSensor())) && (c1>2*NEAR_SENSOR || c1<FAKE_ZERO_2 ) ){
+    // && (c1+c2>2*NEAR_SENSOR || c3+c4<FAKE_ZERO_2 ) 
+    if( ((side == 'f' && frontSensor()) ||  (side == 'r' && rightSensor()) || (side == 'b' && backSensor()) || (side == 'l' && leftSensor())) ){
         // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
         // PRINT_DEV << "TurnJ3 out || angle: " << getAngle() <<PRINTEND_DEV;
         m_robot->wheelsController()->setSpeeds(-1, -1);
         return True;
     }else
     {
-        for( int i=0; i<8; i++){
-            c += evonet->getInput(i);
+        // for( int i=0; i<8; i++){
+        //     c += evonet->getInput(i);
+        // }
+        // // printf("sum imputs: %f", c);
+        // c1 += s1+s2;
+        // c2 += s1+s2;
+        if (s1 < NEAR_SENSOR && s2 < NEAR_SENSOR){
+            v1=5;v2=5;
+        }else if(s1 - s2 > FAKE_ZERO_2){
+            v1 = 5*(s1-s2);
+            v2 = 5*(s1-s2);
+        }else{
+            v1=1;v2=1;
         }
-        // printf("sum imputs: %f", c);
-        c1 += s1+s2;
-        c2 += s1+s2;
-        // if( c > c1 || c > c2 ){
-        //     v1 = 5; v2 = 5; 
-        // }else 
-        if( s1 + s2 < 2*NEAR_SENSOR || c > c1 || c > c2 ){
-            v1 = 5; v2 = 5;
-            // PRINT_DEV << "(turnJ3 1) s1/2: (" << s1 <<", "<< s2 << ") vel: (" << v1 <<", "<< v2 << ")angle: " << getAngle() <<PRINTEND_DEV;
-        }else if( s1 > 0 && s2 > 0 ){
-            v1 = 5*(s2-s1);
-            v2 = 5*(s2-s1);
-            // PRINT_DEV << "(turnJ3 2) s1/2: (" << s1 <<", "<< s2 << ") vel: (" << v1 <<", "<< v2 << ")angle: " << getAngle() <<PRINTEND_DEV;
-        }else {
-            v1 = 1; v2 = 1;
-            // PRINT_DEV << "(turnJ3 3) s1/2: (" << s1 <<", "<< s2 << ") vel: (" << v1 <<", "<< v2 << ") angle: " << getAngle() <<PRINTEND_DEV;
-        }
+        // PRINT_DEV << "(turnJ3 3) s1/2: (" << s1 <<", "<< s2 << ") vel: (" << v1 <<", "<< v2 << ") angle: " << getAngle() <<PRINTEND_DEV;
         m_robot->wheelsController()->setSpeeds(v1, -v2);
         return False;
     }
@@ -1846,7 +1852,7 @@ int  MarxBotCleaningExperiment::rightSensor(){
 }
 int  MarxBotCleaningExperiment::backSensor(){
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
-   if( ( (evonet->getInput(1) + evonet->getInput(2) )/2 > NEAR_SENSOR) && ( abs(evonet->getInput(1) - evonet->getInput(2)) < FAKE_ZERO_2 ) ){
+    if( ( (evonet->getInput(1) + evonet->getInput(2) )/2 > NEAR_SENSOR) && ( abs(evonet->getInput(1) - evonet->getInput(2)) < FAKE_ZERO_2 ) ){
         return True;
     }else{
         return False;
