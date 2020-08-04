@@ -184,6 +184,8 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	#define DEV_MOD 1
 	#define PRINT_DEV if(DEV_MOD){std::cout
 	#define PRINTEND_DEV std::endl;}
+	#define SENSORS evonet->getInput
+
 	int Turning = False;
 	int Running = False;
 	
