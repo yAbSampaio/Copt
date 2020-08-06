@@ -145,35 +145,6 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 // Functions by Lucas T. G.{
 
-	virtual void findRoom();
-
-	virtual int TurnRobot2( float degrees);
-
-	virtual float getAngle();
-
-	virtual int RunRobot( float distance);
-
-	virtual void CleamRoomHardMode();
-
-	virtual void Cleaning();
-	
-	virtual void demandRoom();
-
-	virtual int RunRobotW3(int front = 0, int right = 0, int back = 0, int left = 0);
-
-	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
-
-	virtual int RunRobot3();
-
-	virtual int TurnRobot3(int front = 0, int right = 0, int back = 0, int left = 0); //turn the robot until just the asked sensors stay activated
-
-	virtual int TurnRobotJ3(char side);
-
-	virtual int frontSensor();
-	virtual int rightSensor();
-	virtual int backSensor();
-	virtual int leftSensor();
-
 	#define True 1
 	#define False 0
 	#define NEAR_SENSOR 0.60
@@ -186,17 +157,34 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	#define PRINTEND_DEV std::endl;}
 	#define SENSORS evonet->getInput
 
+	virtual void Cleaning();
+
+	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
+
+	virtual int RunRobotW3(int front = 0, int right = 0, int back = 0, int left = 0);
+
+	virtual int TurnRobotOntheCorner3();
+
+	virtual int TurnRobotJ3(char side);
+
+	virtual int frontSensor();
+	virtual int rightSensor();
+	virtual int backSensor();
+	virtual int leftSensor();
+
+	virtual float getAngle();
+
+	virtual int RunRobot( float distance);
+
 	int Turning = False;
 	int Running = False;
-	
-
-    int effect = 0; //what the robot need to do on current step
+	int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
-	int last_track = -1;//the value of 'last_track' is '-1' for right, and '1' for left
+	int last_track = 1;//the value of 'last_track' is '-1' for right, and '1' for left
 
 	float VelPerStepForOneDistance = 10;//7.407407407407408; //that's the value for the speed
 
-	float VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
+	double VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
 	int Clock;
 	int DegreesCycles = 1; //how many clocks are necessary to turn 1 degrees
 	float DistanceCycles = 0.013500000000000014; //how many clocks are necessary to run for 1 distance unity
@@ -205,27 +193,9 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	int initClock;
 	int endClock;
 	float theta, distance;
-	int deg = 180;
-	int DegStep = 90;
-	int effect2 = 6;
-	int walk = 1;
-	float x0_room;
-    float y0_room;
-    float x1_room;
-    float y1_room;
-    float width_room;
-    float height_room;
-	int teste = 1;
-	// Robots informations
 	float diameter_robot = 0.15;
-	int cleanRoom = 0;
-    int last_Walk = 0;
-	int hallPass = 0;
 
 // } Functions by Lucas T. G.
-
-
-
 
 	/**
 	 * \brief Celled after all sensors have been updated but before network
