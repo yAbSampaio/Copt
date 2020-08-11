@@ -1,40 +1,72 @@
-int MarxBotCleaningExperiment::TurnRobotJ3(char side){ //turn the robot until just the asked sensors stay activated
-    farsa::ResourcesLocker locker(this);
-    farsa::RobotOnPlane *robot =
-        getResource<farsa::RobotOnPlane>("agent[0]:robot");
-    farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
-    farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
-    if( (side == 'f' && frontSensor()) ||  (side == 'r' && rightSensor()) || (side == 'b' && backSensor()) || (side == 'l' && leftSensor()) ){
-        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
-        m_robot->wheelsController()->setSpeeds(1, 1);
-        return True;
-    }else
-    {
-        float v1 = 1, v2 = 1;
-        int s1, s2;
-        if(side == 'l'){
-            s1 = evonet->getInput(0);
-            s2 = evonet->getInput(7);
-        }else if(side == 'r'){
-            s1 = evonet->getInput(3);
-            s2 = evonet->getInput(4);
-        }else if(side == 'b'){
-            s1 = evonet->getInput(1);
-            s2 = evonet->getInput(2);
-        }elseif(side == 'f'){
-            s1 = evonet->getInput(5);
-            s2 = evonet->getInput(6);
+float MarxBotCleaningExperiment::noiseRun(){
+    noiseMotor = 0;
+    srand (static_cast <unsigned> (time(0)));
+    if (nvlNoise == 1){
+	    int aux =(rand()%10);
+        if (aux == 5){
+            nvlNoise =  ((rand()%100)/100)*0.05;
+            noiseMotor = (10*nvlNoise);
+            return noiseMotor;
         }
+    }
+    else if (nvlNoise == 2){
+        int aux =(rand()%4);
+        if (aux == 2){
+            nvlNoise =  ((rand()%100)/100)*0.1;
+            noiseMotor = (10*nvlNoise);
+            return noiseMotor;
+        }
+    }
+    else if (nvlNoise == 3){
+        int aux =(rand()%3;
+        if (aux == 2){
+            nvlNoise =  ((rand()%100)/100)*0.15;
+            noiseMotor = (10*nvlNoise);
+            return noiseMotor;
+        }
+    }
+    return noiseMotor;
+}
 
-        if( s1 < 0.5 || s2 < 0.5 ){
-            v1 = 10; v2 = 10;
-        }else if( abs(s1 - s2) <= 0.1 ){
-            v1 = 1*(s1-s2);
-            v2 = 1*(s1-s2);
-        }else{
-            v1 = 1; v2 = 1;
+int MarxBotCleaningExperiment::noiseActive(){
+    if (nvlNoise == 2){
+        int auxPos =(rand()%20);
+        if(auxPos == 12){
+            noisePos = 0.02;
+            return 1;
         }
-        m_robot->wheelsController()->setSpeeds(v1, -v2);
-        return False;
+        return 0;
+    }
+    else if (nvlNoise == 3){
+        int auxPos =(rand()%10);
+        int auxAng =(rand()%1000);
+        rateAngAct = 0;
+        if(auxPos == 7){
+            noisePos = 0.05;
+            if (auxAng == 20){
+                rateAngAct = 0.01;
+                return 1;
+            }
+            else{
+                return 1;
+            }
+        }
+        else if (auxAng == 25){
+            rateAngAct = 0.01;
+            return 1;
+        }
+        return 0;
     }
 }
+                  
+/////////////////////////////////////////////////////////////////////////////////////////////
+                  
+                  
+                  
+ // Variables creates for noise
+
+	int nvlNoise = 1;
+	int noiseMotor = 0;
+	int ratePosAct = 0;
+	int noisePos = 0;
+	int rateAngAct = 0;
