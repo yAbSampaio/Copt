@@ -176,11 +176,16 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual int RunRobot( float distance);
 
+	virtual int TurnBackToWall();
+
+	virtual int RunUntilHit();
+
 	int Turning = False;
 	int Running = False;
+	int InCorridor = False;
 	int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
-	int last_track = 1;//the value of 'last_track' is '-1' for right, and '1' for left
+	int last_track = -1;//the value of 'last_track' is '-1' for right, and '1' for left
 
 	float VelPerStepForOneDistance = 10;//7.407407407407408; //that's the value for the speed
 
