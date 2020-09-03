@@ -176,6 +176,8 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual int RunRobot( float distance);
 
+	virtual int TurnHalfMoon();
+	
 	virtual int TurnBackToWall();
 
 	virtual int RunUntilHit();
