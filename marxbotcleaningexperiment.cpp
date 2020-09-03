@@ -535,7 +535,7 @@ void MarxBotCleaningExperiment::endStep(int step) {
     //     std::cout << "Orientation: " <<  degrees << std::endl;
 }
 void MarxBotCleaningExperiment::endTrial(int trial) {
-    printf("\n\n\n\n\n\n\n\n\n");
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     double total_fitness = 0;
     if (getActivityPhase() == INTEST) {
         int cont = 0;
@@ -554,7 +554,6 @@ void MarxBotCleaningExperiment::endTrial(int trial) {
             savefile(total_fitness/static_cast<double>(rooms.size()));
         }
     }
-    
 }
 
 void MarxBotCleaningExperiment::savefile(double total_fitness){
@@ -690,7 +689,7 @@ void MarxBotCleaningExperiment::placeRobot(int trial) {
     // robot->setOrientation(arena->getPlane(),
     }
     //                 locRNG.getDouble(-PI_GRECO, PI_GRECO));
-    robot->setPosition(arena->getPlane(), -1, 1);
+    robot->setPosition(arena->getPlane(), 1, 1);
     robot->setOrientation(arena->getPlane(), 0);
 }
 void MarxBotCleaningExperiment::createRooms() {
@@ -806,18 +805,9 @@ void MarxBotCleaningExperiment::Cleaning(){
                 std::cout << "corner dentro 2 Clock: " << evonet->getInput(8) << " position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
                 PositionInTheCorner = 3;
             }
-        }
-
-        else if (PositionInTheCorner == 3){
-            if(SENSORS(1) < 0.8 || SENSORS(2) < 0.8 ){
-                // printf("sensor: %3f - %3f || angle: %3f \n", SENSORS(1), SENSORS(2), getAngle());
-                m_robot->wheelsController()->setSpeeds(-5, 0);
-            }else{
-                PositionInTheCorner = 4;
-            }
-        }else if ( PositionInTheCorner == 4 ){
+        }else if ( PositionInTheCorner == 3 ){
             // std::cout << "corner 3 fora || Sensors: " << rightSensor() << "-" << backSensor() << " || position: ("<< robot->position().x << ", " << robot->position().y << ") || Orientation: " << getAngle() << std::endl;
-            if ( TurnBackToWall() )
+            if ( TurnHalfMoon() )
             {
                 PositionInTheCorner = 0;
                 effect = 1;
@@ -834,91 +824,47 @@ void MarxBotCleaningExperiment::Cleaning(){
             effect = 4;
         }
     }
-    // else if( effect == 2 ){
-    //     if( last_track == -1 ){
-    //         if( TurnRobotJ3('r') ){
-    //             effect = 3;
-    //         }
-    //     }else{
-    //         if( TurnRobotJ3('l') ){
-    //             effect = 3;
-    //         }
-    //     }
-    // }else if( effect == 3 ){
-    //     if( RunRobot(diameter_robot) ){
-    //         effect = 4;
-    //         PRINT_DEV << "effect 3 " << PRINTEND_DEV;
-    //     }
-    //     // m_robot->wheelsController()->setSpeeds(10, 10);
-    //     // effect = 4;
-        
-    // }
     else if (effect == 4){
-        printf("effect 4 sensor: %3f - %3f || angle: %3f ", SENSORS(1), SENSORS(2), getAngle());
-        if( SENSORS(1) < 0.8 || SENSORS(2) < 0.8 ){
-            printf("girando \n");
-            if( last_track == -1 ){
-                m_robot->wheelsController()->setSpeeds(-5, 0);
-            }else{
-                m_robot->wheelsController()->setSpeeds(0, -5);
-            }
-        }else{
-            if( abs(SENSORS(1) - SENSORS(2) ) < FAKE_ZERO_2 ){
-                printf("finda a girada \n");
-                // if(last_track == 1){
-                //     m_robot->wheelsController()->setSpeeds(1, 1);
-                // }else{
-                //     m_robot->wheelsController()->setSpeeds(1, 1);
-                // }
-                m_robot->wheelsController()->setSpeeds(-1*SENSORS(2), -1*SENSORS(1));
-                printf("effect4 \n");
-                effect = 1;
-                last_track *= -1;
-            }else if( SENSORS(1) > 0.8 && SENSORS(2) > 0.8 ){
-                printf("fitando \n");
-                float v = 1*(SENSORS(1)-SENSORS(2));
-                m_robot->wheelsController()->setSpeeds(v, -v);
-            }
+        if( TurnHalfMoon() ){
+            printf("effect4\n");
+            effect = 1;
+            last_track *= -1;
         }
     }
-    // else if( effect == 4 ){
-    //     if( TurnBackToWall() ){
-    //         printf("effect4\n");
-    //         effect = 1;
-    //         last_track *= -1;
-    //     }
-    // }
 }
 
-int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int left){ //turn the robot until just the asked sensors stay activated
+int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int left){
     farsa::ResourcesLocker locker(this);
     farsa::RobotOnPlane *robot =
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
     farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
     farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
-    // if( ( front && frontSensor() ) ||  ( right && rightSensor() ) || ( back && backSensor() ) || ( left && leftSensor() ) ){
-    // if( (front && front == frontSensor() ) ||  ( right && right == rightSensor() ) || (back && back == backSensor() ) || (left && left == leftSensor() ) ){
-    // if( ( ( front == frontSensor() ) &&  ( right == rightSensor() ) && ( back == backSensor() ) && ( left == leftSensor() ) ) || frontSensor() ){
-    if ( rightSensor() && leftSensor() ){
-        // m_robot->wheelsController()->setSpeeds(10, 10);
-        printf("corredor\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-        std::cout<< "RRF3 Corredor" << std::endl << std::endl << std::endl << std::endl << std::endl;
-        return True;
-    }//else
+
+    // printf("angle: %3f || sensores: ", getAngle());
+    // for( int sum=0, i=0; i<8; i++){
+    //     printf("-> %d : %5f ", i, SENSORS(i));
+    // }
+    // printf("\n");
+
     if( SENSORS(5) > 0.8 || SENSORS(6) > 0.8 ){
-        // std::cout<< "sensors" << frontSensor() << " - " << rightSensor() << " - " << backSensor() << " - " << leftSensor() << std::endl;
-        // printf("Sensors: %8f - %8f || %4f -> ", SENSORS(6), SENSORS(5), getAngle());
-        m_robot->wheelsController()->setSpeeds(5*SENSORS(5), 5*SENSORS(6));
+        if( left == 1 && (SENSORS(0) < NEAR_SENSOR || SENSORS(7) < NEAR_SENSOR) ){
+            printf("girando no corredor\n");
+            m_robot->wheelsController()->setSpeeds(10, -10);
+            return False;
+        }
+        // printf("RunRobotF3: Sensors: %8f - %8f || %4f -> ", SENSORS(6), SENSORS(5), getAngle());
+        m_robot->wheelsController()->setSpeeds(10*SENSORS(5), 10*SENSORS(6));
         return True;
     }else{
         if(right == 1){
-            // float v1 = (6+log2(evonet->getInput(3)))/6;
-            // float v2 = (6+log2(evonet->getInput(4)))/6;
             float v1 = evonet->getInput(3);
             float v2 = evonet->getInput(4);
             if(v1+v2 < FAKE_ZERO_2){
                 v1 = 1;
                 v2 = 0.7;
+            }else if(v2 > 0.95){
+                v2 = 0;
+                v1 = -5;
             }else if( (v1 + v2 )/2 < 0.75 ){
                 // PRINT_DEV << "FAR" << PRINTEND_DEV;
                 v2 *= 0.7;
@@ -935,11 +881,13 @@ int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int le
             if(v1+v2 < FAKE_ZERO_2){
                 v1 = 0.7;
                 v2 = 1;
+            }else if( v1 > 0.95 ){
+                v1 = 0;
+                v2 = -5;
             }else if( (v1 + v2 )/2 < 0.75 ){
                 // PRINT_DEV << "FAR" << PRINTEND_DEV;
                 v1 *= 0.7;
-            }
-            else if( (v1 + v2 )/2 > 0.8){
+            }else if( (v1 + v2 )/2 > 0.8){
                 // PRINT_DEV << "NEAR" << PRINTEND_DEV;
                 v2 *= 0.8;
             }
@@ -947,28 +895,8 @@ int MarxBotCleaningExperiment::RunRobotF3(int front, int right, int back, int le
             m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
             return False;
         }else{
-            if( rightSensor() ){
-                float v1 = evonet->getInput(3);
-                float v2 = evonet->getInput(4);
-                if( (v1 + v2 )/2 > 0.8){
-                    v1 *= 0.8;
-                }
-                // PRINT_DEV << " r2 " << v1 << ", " << v2 << PRINTEND_DEV;
-                m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
-                return False;
-            }else if ( leftSensor() ){
-                float v1 = evonet->getInput(7);
-                float v2 = evonet->getInput(0);
-                if( (v1 + v2 )/2 > 0.8){
-                    v2 *= 0.8;
-                }
-                // PRINT_DEV << " l2 " << v1 << ", " << v2 << PRINTEND_DEV;
-                m_robot->wheelsController()->setSpeeds(10*v1, 10*v2 );
-                return False;
-            }else{
-                m_robot->wheelsController()->setSpeeds(10, 10);
-                return False;
-            }
+            m_robot->wheelsController()->setSpeeds(10, 10);
+            return False;
         }
     }
 }
@@ -1013,6 +941,84 @@ int MarxBotCleaningExperiment::RunRobotW3(int front, int right, int back, int le
         return True;
     }
 }
+
+int MarxBotCleaningExperiment::TurnHalfMoon(){
+    farsa::ResourcesLocker locker(this);
+    farsa::RobotOnPlane *robot =
+        getResource<farsa::RobotOnPlane>("agent[0]:robot");
+    farsa::Evonet *evonet = getResource<farsa::Evonet>("evonet");
+    farsa::MarXbot *m_robot = dynamic_cast<farsa::MarXbot *>(robot);
+    
+    // printf("angle: %3f || sensores: ", getAngle());
+    // for( int sum=0, i=0; i<8; i++){
+    //     printf("-> %d : %5f ", i, SENSORS(i));
+    // }
+    // printf("\n");
+    
+    if( Turning ){
+        printf(" big half-moon \n");
+        if( SENSORS(4) > 0.85 || SENSORS(5) > 0.90 ){
+            // printf("SENSOR 4 turning > 95\n");
+            m_robot->wheelsController()->setSpeeds(0, -2);
+        }else if( SENSORS(7) > 0.85 || SENSORS(6) > 0.90 ){
+            // printf("SENSOR 7 turning > 95\n");
+            m_robot->wheelsController()->setSpeeds(-2, 0);
+        }else if( SENSORS(5) < 0.8 || SENSORS(6) < 0.8 ){
+            if( last_track == -1 ){
+                m_robot->wheelsController()->setSpeeds(4.5, 8);
+            }else{
+                m_robot->wheelsController()->setSpeeds(8, 4.5);
+            }
+        }else if( abs(SENSORS(5) - SENSORS(6)) < FAKE_ZERO_2 ){
+            Turning = False;
+            // printf("end turning - angle: %3f\n\n\n\n", getAngle());
+            m_robot->wheelsController()->setSpeeds(3*SENSORS(5), 3*SENSORS(6));
+        }else if( SENSORS(5) > 0.8 || SENSORS(6) > 0.8 ){
+            // printf("fitando \n");
+            float v = 1*(SENSORS(5)-SENSORS(6));
+            m_robot->wheelsController()->setSpeeds(v, -v);
+        }
+        return False;
+    }else if( SENSORS(1) < 0.8 && SENSORS(2) < 0.8 ){
+        // printf("girando \n");
+        if( last_track == -1 ){
+            m_robot->wheelsController()->setSpeeds(-5, 0);
+        }else{
+            m_robot->wheelsController()->setSpeeds(0, -5);
+        }
+        return False;
+    }else{
+        if( abs(SENSORS(1) - SENSORS(2)) < FAKE_ZERO_2 && SENSORS(0) <= 0.2 && SENSORS(3) <= 0.2 ){
+            m_robot->wheelsController()->setSpeeds(-3*SENSORS(2), -3*SENSORS(1));
+            return True;
+        }else if( (SENSORS(1) > 0.9 && SENSORS(2) < 0.2) || (SENSORS(2) > 0.9 && SENSORS(1) < 0.2)
+                  || (SENSORS(1) < 0.8 /*&& SENSORS(2) < 0.2*/ && SENSORS(3) > 0.5) 
+                  || (SENSORS(2) < 0.8 /*&& SENSORS(1) < 0.2*/ && SENSORS(0) > 0.5) 
+                  || (abs(SENSORS(1) - SENSORS(2)) < FAKE_ZERO_2 && (SENSORS(0) < 0.05 || SENSORS(3) < 0.05) ) ){
+            Turning = True;
+            if( last_track == -1 ){
+                m_robot->wheelsController()->setSpeeds(4.5, 8);
+            }else{
+                m_robot->wheelsController()->setSpeeds(8, 4.5);
+            }
+            return False;
+        }else if( SENSORS(1) > 0.95 && SENSORS(2) < 0.5 ){
+            // printf(" SENSOR 1 >> SENSOR 2  \n");
+            m_robot->wheelsController()->setSpeeds(1, 0);
+            return False;
+        }else if( SENSORS(2) > 0.95 && SENSORS(1) < 0.5 ){
+            // printf(" SENSOR 2 >> SENSOR 1  \n");
+            m_robot->wheelsController()->setSpeeds(0, 1);
+            return False;
+        }else if( SENSORS(1) > 0.8 || SENSORS(2) > 0.8 ){
+            // printf("fitando \n");
+            float v = 2*(SENSORS(1)-SENSORS(2));
+            m_robot->wheelsController()->setSpeeds(v, -v);
+            return False;
+        }
+    }
+}
+
 int MarxBotCleaningExperiment::TurnBackToWall(){
     farsa::ResourcesLocker locker(this);
     farsa::RobotOnPlane *robot =
@@ -1024,29 +1030,29 @@ int MarxBotCleaningExperiment::TurnBackToWall(){
     float sen1 = SENSORS(s1), sen2 = SENSORS(s2);
     float dif;
     if(last_track == 1){
-        printf("last track is +1\n");
+        // printf("last track is +1\n");
         dif = ( sen2 - sen1);
         v1 = 1;
         v2 = 1;
     }else{
-        printf("last track is -1\n");
+        // printf("last track is -1\n");
         dif = ( sen1 - sen2);
         v1 = 1;
         v2 = 1;
     }
-    printf("sens: %3f - %3f  = %3f || angle: %3f ", sen1, sen2, dif, getAngle());
+    // printf("sens: %3f - %3f  = %3f || angle: %3f ", sen1, sen2, dif, getAngle());
     if(sen1 > NEAR_SENSOR && sen2 > NEAR_SENSOR && dif > 0.0005 && dif < 0.005 ){
-        printf("  if1\n");
+        // printf("  if1\n");
         m_robot->wheelsController()->setSpeeds(v1, v2);
         return True;
     }else{
         if( sen1 > NEAR_SENSOR && sen2 > NEAR_SENSOR ){
-            printf("  if2\n");
+            // printf("  if2\n");
             v = 5*abs(dif);
             m_robot->wheelsController()->setSpeeds(v, -v);
             return False;
         }else{
-            printf("  if3\n");
+            // printf("  if3\n");
             v = 10;
             m_robot->wheelsController()->setSpeeds(v, -v);
             return False;
@@ -1063,6 +1069,7 @@ int MarxBotCleaningExperiment::RunUntilHit(){
     int s1 = 6, s2 = 5;
     float sen1 = SENSORS(s1), sen2 = SENSORS(s2);
     if( InCorridor != False || ((SENSORS(0) > NEAR_SENSOR || SENSORS(7) > NEAR_SENSOR) && (SENSORS(3) > NEAR_SENSOR || SENSORS(4) > NEAR_SENSOR)) ){
+        printf("Corredor\n\n\n\n\n\n\nCorredor\n\n\n\n\n\n\nCorredor\n\n\n\n\n\n\nCorredor\n\n\n\n\n\n\nCorredor\n\n\n\n\n\n\n");
         if(InCorridor == False){
             InCorridor = 1;
             m_robot->wheelsController()->setSpeeds(v, -v);
@@ -1088,19 +1095,23 @@ int MarxBotCleaningExperiment::RunUntilHit(){
         } 
 
     }else if( sen1 > 0.8 || sen2 > 0.8 ){
-        v = 1;
-        m_robot->wheelsController()->setSpeeds(5*SENSORS(5), 5*SENSORS(6));
+        v = 5;
+        m_robot->wheelsController()->setSpeeds(v*SENSORS(5), v*SENSORS(6));
         return True;
     }else{
         v = 10;
-        m_robot->wheelsController()->setSpeeds(v, v);
+        if( SENSORS(4) > 0.9 && SENSORS(4) > SENSORS(3)){
+            m_robot->wheelsController()->setSpeeds(v*SENSORS(3), v*SENSORS(4));
+        }else if( SENSORS(7) > 0.9 && SENSORS(7) > SENSORS(0)){
+            m_robot->wheelsController()->setSpeeds(v*SENSORS(7), v*SENSORS(0));
+        }else{
+            m_robot->wheelsController()->setSpeeds(v, v);
+        }
         return False;
     }
 }
 
-
-
-int MarxBotCleaningExperiment::TurnRobotOntheCorner3(){ //turn the robot until just the asked sensors stay activated
+int MarxBotCleaningExperiment::TurnRobotOntheCorner3(){ // turn the robot until just the asked sensors stay activated
     farsa::ResourcesLocker locker(this);
     farsa::RobotOnPlane *robot =
         getResource<farsa::RobotOnPlane>("agent[0]:robot");
@@ -1117,28 +1128,28 @@ int MarxBotCleaningExperiment::TurnRobotOntheCorner3(){ //turn the robot until j
     // PRINT_DEV << Sensors[0] << " - " << Sensors[1] << " - " << Sensors[2] << " - " << Sensors[3] << " - " << PRINTEND_DEV;
     if(Sensors[0]>NEAR_SENSOR && Sensors[1]>NEAR_SENSOR && Sensors[2]>NEAR_SENSOR && Sensors[3]>NEAR_SENSOR ){
         if( /*abs(Sensors[0]-Sensors[1]) < FAKE_ZERO_2 &&*/ abs(Sensors[2]-Sensors[3]) < FAKE_ZERO_2 ){
-            printf("caso 1\n");
+            // printf("caso 1\n");
             m_robot->wheelsController()->setSpeeds(0.1, 0.1);
             return True;
         }else{
             // v = abs( abs(Sensors[0]-Sensors[1]) + (abs(Sensors[2]-Sensors[3])) )/2;
             v = abs(Sensors[2]-Sensors[3]);
             if( v > 0 ){
-                printf("caso 2.1 %8f", v);
+                // printf("caso 2.1 %8f", v);
             }else{
                 v = 0.1;
             }
-            printf("caso 2\n");
+            // printf("caso 2\n");
             m_robot->wheelsController()->setSpeeds(v, -v);
             return False;
         }
     }else{
         if(Sensors[0]>NEAR_SENSOR || Sensors[1]>NEAR_SENSOR || Sensors[2]>NEAR_SENSOR || Sensors[3]>NEAR_SENSOR ){
-            printf("caso 3\n");
+            // printf("caso 3\n");
             m_robot->wheelsController()->setSpeeds(v, -v);
             return False;
         }else {
-            printf("caso 4\n");
+            // printf("caso 4\n");
             v=10;
             m_robot->wheelsController()->setSpeeds(v, -v);
             return False;
