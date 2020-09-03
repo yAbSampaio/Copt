@@ -161,10 +161,6 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
 
-	virtual int RunRobotW3(int front = 0, int right = 0, int back = 0, int left = 0);
-
-	virtual int TurnRobotOntheCorner3();
-
 	virtual int TurnRobotJ3(char side);
 
 	virtual int frontSensor();
@@ -174,9 +170,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual float getAngle();
 
-	virtual int RunRobot( float distance);
-
-	virtual int TurnBackToWall();
+	virtual int TurnHalfMoon();
 
 	virtual int RunUntilHit();
 
@@ -186,18 +180,6 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	int effect = 0; //what the robot need to do on current step
 	int PositionInTheCorner = 0; //an assist for the 'effect' when 'effect' is equal zero
 	int last_track = -1;//the value of 'last_track' is '-1' for right, and '1' for left
-
-	float VelPerStepForOneDistance = 10;//7.407407407407408; //that's the value for the speed
-
-	double VelPerStepForOneDregrees = 0.8176614881438996; //the velocity for the robot turn one degrees in one step
-	int Clock;
-	int DegreesCycles = 1; //how many clocks are necessary to turn 1 degrees
-	float DistanceCycles = 0.013500000000000014; //how many clocks are necessary to run for 1 distance unity
-	int NecessaryClocks; // how many clocks are necessary to turn the amount of degrees requested
-	float endDegrees;
-	int initClock;
-	int endClock;
-	float theta, distance;
 	float diameter_robot = 0.15;
 
 // } Functions by Lucas T. G.
