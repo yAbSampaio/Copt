@@ -159,7 +159,7 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual void Cleaning();
 
-	virtual int RunRobotF3(int front = 0, int right = 0, int back = 0, int left = 0);
+	virtual int RunRobotF3(char side,  int SwitchingRooms, int PosInCorner);
 
 	virtual int TurnRobotJ3(char side);
 
@@ -169,6 +169,8 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 	virtual int leftSensor();
 
 	virtual float getAngle();
+
+	virtual void PrintSensors();
 
 	virtual int TurnHalfMoon();
 
