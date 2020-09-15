@@ -834,12 +834,8 @@ void MarxBotCleaningExperiment::Cleaning(){
     else if(effect == 1 ){
         if( RunUntilHit() ){
             printf("effect1\n");
+            PrintSensors();
             effect = 2;
-            // printf("angle: %3f || sensores: ", getAngle());
-            // for( int sum=0, i=0; i<8; i++){
-            //     printf("-> %d : %5f ", i, SENSORS(i));
-            // }
-            // printf("\n");
             if( last_track == 1 && SENSORS(0) > 0.2 && SENSORS(7) > 0.4 ){
                 effect = 3;
             }else if( last_track == -1 && SENSORS(3) > 0.2 && SENSORS(4) > 0.4 ){
@@ -850,11 +846,7 @@ void MarxBotCleaningExperiment::Cleaning(){
     else if (effect == 2){
         if( TurnHalfMoon() ){
             printf("effect2\n");
-            // printf("angle: %3f || sensores: ", getAngle());
-            // for( int sum=0, i=0; i<8; i++){
-            //     printf("-> %d : %5f ", i, SENSORS(i));
-            // }
-            // printf("\n\n");
+            PrintSensors();
             if( (SENSORS(0) > 0.4 && SENSORS(7) > 0.2) || (SENSORS(3) > 0.4 && SENSORS(4) > 0.2) ){
                 effect = 3;
             }else if(effect == 2){
@@ -1006,7 +998,7 @@ int MarxBotCleaningExperiment::TurnHalfMoon(){
     //     printf("-> %d : %5f ", i, SENSORS(i));
     // }
     // printf("\n");
-    int v = 10;
+    float v = 10;
     
     if( InCorridor != False ){
         // printf("angle: %3f || sensores: ", getAngle());
@@ -1039,7 +1031,7 @@ int MarxBotCleaningExperiment::TurnHalfMoon(){
                 PrintSensors();
                 printf("incorridor: 2\n");
                 InCorridor = 3;
-                m_robot->wheelsController()->setSpeeds(-v, v);
+                m_robot->wheelsController()->setSpeeds(v, v);
             }else if( last_track == 1 ){
                 if( SENSORS(5) > 0.8 || SENSORS(6) > 0.8 ){
                     m_robot->wheelsController()->setSpeeds(v, -v);
@@ -1060,24 +1052,47 @@ int MarxBotCleaningExperiment::TurnHalfMoon(){
                 InCorridor = 4;
                 m_robot->wheelsController()->setSpeeds(-v, v);
             }else{
-                PrintSensors();
+                // PrintSensors();
                 m_robot->wheelsController()->setSpeeds(-v, v);
             }
         }else if( InCorridor == 4 ){
-            if( (SENSORS(0) > 0.4 && SENSORS(7) > 0.4) && (SENSORS(3) > 0.4 && SENSORS(4) > 0.4) ){
-                PrintSensors();
-                printf("incorridor: 4\n");
-                InCorridor = 5;
-                m_robot->wheelsController()->setSpeeds(-v, v);
+            if( SENSORS(1) < 0.8 && SENSORS(2) < 0.8 ){
+                DefinedByLastTrackFloat(&v, -10.0, 10.0);
+                printf("v: %f\n", v);
+                m_robot->wheelsController()->setSpeeds(v, v);
             }else{
+                DefinedByLastTrackFloat(&v, 1.0, -1.0);
+                printf("incorridor: 4\n");
                 PrintSensors();
-                m_robot->wheelsController()->setSpeeds(-v, v);
+                InCorridor = 5;
+                m_robot->wheelsController()->setSpeeds(v*SENSORS(1), v*SENSORS(2));
             }
+                
         }else if( InCorridor == 5 ){
-            if( TurnRobotJ3('l') ){
+            char side;
+            DefinedByLastTrackChar(&side, 'r', 'l');
+            if( TurnRobotJ3(side) ){
+                PrintSensors();
                 printf("incorridor 5\n");
+                InCorridor = 6;
+            }
+        }else if( InCorridor == 6 ){
+            if( SENSORS(0) < 0.1 && SENSORS(3) < 0.1 ){
+                PrintSensors();
+                printf("incorridor 6\n");
                 InCorridor = False;
                 return True;
+            }else{
+                PrintSensors();
+                float v1=v, v2=v;
+                if( SENSORS(7) > 0.90 ){
+                    v1 *= SENSORS(7);
+                    v2 *= SENSORS(0);
+                }else if( SENSORS(4) > 0.90 ){
+                    v1 *= SENSORS(3);
+                    v2 *= SENSORS(4);
+                }
+                m_robot->wheelsController()->setSpeeds(v1, v2);
             }
         }
         return False;
@@ -1325,5 +1340,21 @@ void MarxBotCleaningExperiment::PrintSensors(){
         printf("-> %d : %.5f ", i, SENSORS(i));
     }
     printf("\n");
+}
+
+void MarxBotCleaningExperiment::DefinedByLastTrackFloat( float *var, float ifLTisP, float ifLTisN){
+    if( last_track == 1){   //if Last_Track is positive
+        *var = ifLTisP;
+    }else{
+        *var = ifLTisN;
+    }
+}
+
+void MarxBotCleaningExperiment::DefinedByLastTrackChar( char *var, char ifLTisP, char ifLTisN){
+    if( last_track == 1){   //if Last_Track is positive
+        *var = ifLTisP;
+    }else{
+        *var = ifLTisN;
+    }
 }
 // } Functions by Lucas T. G.
