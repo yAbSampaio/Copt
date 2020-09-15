@@ -172,6 +172,10 @@ class FARSA_PLUGIN_API MarxBotCleaningExperiment :
 
 	virtual void PrintSensors();
 
+	virtual void DefinedByLastTrackFloat( float *var, float ifLTisP, float ifLTisN);
+
+	virtual void DefinedByLastTrackChar( char *var, char ifLTisP, char ifLTisN);
+	
 	virtual int TurnHalfMoon();
 
 	virtual int RunUntilHit();
